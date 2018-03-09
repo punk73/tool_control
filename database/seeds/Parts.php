@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-
-class DatabaseSeeder extends Seeder
+class Parts extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,7 +11,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(Suppliers::class);
-        
+        //
     }
 }

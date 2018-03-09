@@ -8,6 +8,6 @@ class UserSupp extends Model
 {
     //
     protected $connection = 'sqlsrv';
-    protected $table = 'UserSupp';
+    protected $table = 'Supplier';
 
 }

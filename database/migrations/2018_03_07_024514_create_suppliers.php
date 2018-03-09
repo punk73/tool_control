@@ -17,7 +17,7 @@ class CreateSuppliers extends Migration
             //
             $table->increments('id');
             $table->string('name', 128);
-            $table->string('code', 64);
+            $table->string('code', 64)->unique();
             $table->timestamps();
         });
     }

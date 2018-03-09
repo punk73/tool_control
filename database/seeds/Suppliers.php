@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\UserSupp;
+use App\Supplier;
 
 class Suppliers extends Seeder
 {
@@ -19,11 +20,18 @@ class Suppliers extends Seeder
 
         foreach ($currentUser as $key => $value){ 
             # code...
-            DB::table('suppliers')->insert([
+            $value['SuppName'] = str_replace("  ", "", $value['SuppName']);  
+            
+            $supplier = new Supplier;
+            $supplier->name = $value['SuppName'];
+            $supplier->code = $value['SuppCode'];
+            $supplier->save();
+            
+            /*DB::table('suppliers')->insert([
                 
                 'code'=>$value['SuppCode'] ,
                 'name'=> $value['SuppName']
-            ]); 
+            ]);*/ 
         }
     }
 }

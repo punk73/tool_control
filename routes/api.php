@@ -41,6 +41,11 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'suppliers'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\SuppliersController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\SuppliersController@store' );
+        $api->put('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@update' );
+        $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@delete' );
     });
+
+    $api->get('/sync', 'App\\Api\\V1\\Controllers\\SuppliersController@getcsv' );
 
 });
