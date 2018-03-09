@@ -46,6 +46,6 @@ $api->version('v1', function (Router $api) {
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@delete' );
     });
 
-    $api->get('/sync', 'App\\Api\\V1\\Controllers\\SuppliersController@getcsv' );
+    $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@getcsv' );
 
 });
