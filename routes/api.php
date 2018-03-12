@@ -46,6 +46,10 @@ $api->version('v1', function (Router $api) {
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@delete' );
     });
 
-    $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@getcsv' );
+    $api->group(['prefix' => 'pck31s'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );
+        $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@sync' );
+    });
+
 
 });

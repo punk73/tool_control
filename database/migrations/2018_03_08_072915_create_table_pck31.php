@@ -13,10 +13,10 @@ class CreateTablePck31 extends Migration
      */
     public function up()
     {
-        Schema::create('pck31', function (Blueprint $table) {
+        Schema::create('pck31s', function (Blueprint $table) {
             $table->increments('id');
             $table->string('month');
-            $table->string('v_code');
+            $table->string('vcode');
             $table->string('part_no');
             $table->string('part_name');
             $table->string('input_date');
@@ -38,6 +38,6 @@ class CreateTablePck31 extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pck31');
+        Schema::dropIfExists('pck31s');
     }
 }
