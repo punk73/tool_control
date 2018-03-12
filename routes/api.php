@@ -41,15 +41,25 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'suppliers'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\SuppliersController@index' );
-        $api->post('/', 'App\\Api\\V1\\Controllers\\SuppliersController@store' );
-        $api->put('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@update' );
-        $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@delete' );
+        // $api->post('/', 'App\\Api\\V1\\Controllers\\SuppliersController@store' );
+        // $api->put('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@update' );
+        // $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@delete' );
+    });
+
+    $api->group(['prefix' => 'parts'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\PartsController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\PartsController@store' );
+        $api->put('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@update' );
+        $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@delete' );
     });
 
     $api->group(['prefix' => 'pck31s'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );
         $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@sync' );
+        $api->get('/copy', 'App\\Api\\V1\\Controllers\\Pck31Controller@copy' );
     });
+
+
 
 
 });

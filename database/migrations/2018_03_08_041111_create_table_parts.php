@@ -22,8 +22,7 @@ class CreateTableParts extends Migration
             $table->integer('first_value', 0);
             $table->integer('total_delivery', 0);
             $table->integer('total_qty', 0);
-            $table->float('cav')->default(0);
-            $table->integer('is_deleted', 0);
+            $table->integer('is_deleted')->default(0);
             $table->timestamps();
         });
     }

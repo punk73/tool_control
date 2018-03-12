@@ -114,8 +114,22 @@ class Pck31Controller extends Controller
 		];
 	}
 
-	public function store(){
-		
+
+	//PCK31 akan dihandle oleh pak yunus
+	public function copy(){
+		$path = '\\\svrfile\EDI\BACKUP\PCK31WEB\\';
+		$today = date('Ymd');
+
+		$filename = $path . 'PCK31WEB'.$today.'.txt';
+		// return $filename;
+		$localpath = storage_path('app\data_hasil_copy.csv');
+
+		$isSuccess = copy($filename, $localpath );
+		if ($isSuccess) {
+			return "sukses";
+		}else{
+			return "Gaggal";
+		}
 	}
 
 	public function update(){
