@@ -5,6 +5,11 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 class Part extends Model
-{
-    //
+{	
+
+	protected $hidden = ['is_deleted'];
+
+    public function supplier(){
+    	return $this->belongsTo('App\Supplier');
+    }
 }

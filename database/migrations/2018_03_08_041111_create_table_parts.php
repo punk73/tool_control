@@ -17,7 +17,7 @@ class CreateTableParts extends Migration
             $table->increments('id');
             $table->string('no')->unique();
             $table->string('name');
-            $table->integer('suppliers_id');
+            $table->integer('supplier_id');
             $table->string('model')->nullable();
             $table->integer('first_value', 0);
             $table->integer('total_delivery', 0);

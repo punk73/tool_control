@@ -24,6 +24,25 @@ class SuppliersController extends Controller
     	];
     }
 
+    public function show($id){
+        $supplier = Supplier::find($id);
+        if (!empty($supplier)) {
+            $message = 'Ok';
+            $supplier->parts;
+
+        }else{
+            $message = 'Data not found';
+        }
+
+        return [
+            '_meta' =>[
+                'message' => $message,
+                'count' => count($supplier),
+            ],
+            'data' => $supplier,
+        ];
+    }
+
     public function store(Request $request){
     	$supplier = new Supplier;
     	$supplier->name = $request->name;
