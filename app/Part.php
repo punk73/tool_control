@@ -12,4 +12,9 @@ class Part extends Model
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
+
+    public function tools()
+    {
+        return $this->belongsToMany('App\Tool', 'tool_part');
+    }
 }

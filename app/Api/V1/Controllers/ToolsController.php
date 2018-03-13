@@ -26,7 +26,8 @@ class ToolsController extends Controller
     	$tool = Tool::find($id);
         
         if (!empty($tool) && $tool->is_deleted == 0 ) {
-            // $tool->supplier;
+            $parts = Tool::find($id)->parts;
+            $tool->parts = $parts;
             $message = "OK";
         }else{
             $message = 'Data not found';

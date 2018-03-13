@@ -12,4 +12,9 @@ class Tool extends Model
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
+
+    public function parts()
+    {
+        return $this->belongsToMany('App\Part', 'tool_part');
+    }
 }

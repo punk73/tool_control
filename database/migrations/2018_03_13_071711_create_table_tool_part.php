@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableToolPartRelations extends Migration
+class CreateTableToolPart extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateTableToolPartRelations extends Migration
      */
     public function up()
     {
-        Schema::create('tools_parts_relations', function (Blueprint $table) {
+        Schema::create('tool_part', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('part_id')->unsigned();
             $table->integer('tool_id')->unsigned();
             
             $table->foreign('part_id')->references('id')->on('parts')->onDelete('cascade');
             $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade');
-            
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ class CreateTableToolPartRelations extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tools_parts_relations');
+        Schema::dropIfExists('tool_part');
     }
 }

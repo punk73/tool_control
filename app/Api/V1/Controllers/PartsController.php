@@ -43,11 +43,12 @@ class PartsController extends Controller
 
     public function show($id){
         $part = Part::find($id);
-        // $part = $part->where('is_deleted', '=', 0)->get();
+
         
         if (!empty($part) && $part->is_deleted == 0 ) {
-            // $part->supplier;
             $message = "OK";
+            $tools = Part::find($id)->tools;
+            $part->tools = $tools;
         }else{
             $message = 'Data not found';
             $part = null;

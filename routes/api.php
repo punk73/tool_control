@@ -64,12 +64,21 @@ $api->version('v1', function (Router $api) {
         $api->get('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@show' );
     });
 
+    $api->group(['prefix' => 'toolpart'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
+        $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );
+        
+    });
+
 
     $api->group(['prefix' => 'pck31s'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );
         $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@sync' );
         $api->get('/copy', 'App\\Api\\V1\\Controllers\\Pck31Controller@copy' );
     });
+
+
 
 
 
