@@ -54,8 +54,16 @@ $api->version('v1', function (Router $api) {
         $api->put('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@update' );
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@delete' );
         $api->get('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@show' );
-
     });
+
+    $api->group(['prefix' => 'tools'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\ToolsController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\ToolsController@store' );
+        $api->put('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@update' );
+        $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@delete' );
+        $api->get('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@show' );
+    });
+
 
     $api->group(['prefix' => 'pck31s'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Tool extends Model
 {
     //
+    protected $hidden = ['is_deleted'];
+    
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
