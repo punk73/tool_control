@@ -5,7 +5,7 @@ use App\Part;
 use App\Tool;
 use App\ToolPart;
 
-class Toolpart extends Seeder
+class toolpartSeeders extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,14 +18,14 @@ class Toolpart extends Seeder
         $part = Part::all();
 
         for ($i=0; $i < 100 ; $i++) { 
-        	$tool_id = $tool[ ceil( rand(0,100 ) )]->id;
-        	$part_id = $part[ ceil( rand(0,100 ) )]->id;
+        	$tool_id = $tool[ ceil( rand(0,99 ) )]->id;
+        	$part_id = $part[ ceil( rand(0,99 ) )]->id;
 
         	$toolPart = new ToolPart;
         	$toolPart->tool_id = $tool_id;
         	$toolPart->part_id = $part_id;
         	$toolPart->save();
-        	
+
         }
     }
 }

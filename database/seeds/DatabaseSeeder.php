@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
         $this->call(Suppliers::class);
         $this->call(Parts::class);
         $this->call(Tools::class);
+        $this->call(toolpartSeeders::class);
+        $this->call(PCK31Seeder::class);
         
     }
 }
