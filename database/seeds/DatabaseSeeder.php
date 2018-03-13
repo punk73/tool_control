@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(Suppliers::class);
         $this->call(Parts::class);
+        $this->call(Tools::class);
         
     }
 }

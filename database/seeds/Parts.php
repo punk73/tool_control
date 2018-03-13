@@ -3392,7 +3392,7 @@ class Parts extends Seeder
 		];
 
 		foreach ($pck31s as $key => $value) {
-			$suppliers_id = $supplier[ ceil( rand(0,486 ) )]->id;
+			$supplier_id = $supplier[ ceil( rand(0,486 ) )]->id;
 			$model = str_random(30);
 			$first_value = ceil(rand(0, 99999));
 			$total_delivery = $first_value;
@@ -3401,7 +3401,7 @@ class Parts extends Seeder
 			$part = new Part;
 			$part->no = $value['part_no'];
 			$part->name = $value['part_name'];
-			$part->suppliers_id = $suppliers_id;
+			$part->supplier_id = $supplier_id;
 			$part->model = $model;
 			$part->first_value = $first_value;
 			$part->total_delivery = $total_delivery;
