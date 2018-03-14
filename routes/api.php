@@ -75,6 +75,10 @@ $api->version('v1', function (Router $api) {
         $api->post('/', 'App\\Api\\V1\\Controllers\\TooldetailController@store' );
     });
 
+    $api->group(['prefix' => 'forecasts'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\ForecastController@index' );
+    });
+
     $api->group(['prefix' => 'pck31s'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );
         $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@sync' );
