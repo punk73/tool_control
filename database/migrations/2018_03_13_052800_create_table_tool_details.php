@@ -19,6 +19,7 @@ class CreateTableToolDetails extends Migration
             $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade'); //add reference
             $table->integer('machine_counter')->default(0);
             $table->date('tanggal');
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }

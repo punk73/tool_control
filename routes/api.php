@@ -68,9 +68,12 @@ $api->version('v1', function (Router $api) {
         $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
         $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );
-        
     });
 
+    $api->group(['prefix' => 'tool_details'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\TooldetailController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\TooldetailController@store' );
+    });
 
     $api->group(['prefix' => 'pck31s'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\Pck31Controller@index' );

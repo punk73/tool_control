@@ -17,4 +17,8 @@ class Tool extends Model
     {
         return $this->belongsToMany('App\Part', 'tool_part');
     }
+
+    public function details(){
+    	return $this->hasMany('App\Tool_detail');
+    }
 }
