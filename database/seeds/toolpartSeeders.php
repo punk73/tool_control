@@ -24,6 +24,7 @@ class toolpartSeeders extends Seeder
         	$toolPart = new ToolPart;
         	$toolPart->tool_id = $tool_id;
         	$toolPart->part_id = $part_id;
+            $toolPart->cavity = ceil( rand(1,2) );
         	$toolPart->save();
 
         }

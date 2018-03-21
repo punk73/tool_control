@@ -17,6 +17,7 @@ class CreateTableToolPart extends Migration
             $table->increments('id');
             $table->integer('part_id')->unsigned();
             $table->integer('tool_id')->unsigned();
+            $table->integer('cavity')->unsigned();
             
             $table->foreign('part_id')->references('id')->on('parts')->onDelete('cascade');
             $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade');
