@@ -42,15 +42,22 @@ class ToolPartController extends Controller
     }
 
     public function store(Request $request){
-    	$toolPart = new ToolPart;
+    	
+        $toolPart = new ToolPart;
     	$toolPart->part_id = $request->part_id;
     	$toolPart->tool_id = $request->tool_id;
-    	
+        $toolPart->cavity = $request->cavity;
+
+    	$message = 'OK';
+
     	try {
     		$toolPart->save();
     	} catch (Exception $e) {
     		$message = $e;
     	}
+            
+        $toolPart->tool = $toolPart->tools($toolPart->tool_id);
+        $toolPart->part = $toolPart->parts($toolPart->part_id);
 
     	return [
     		'_meta' => [
@@ -64,7 +71,7 @@ class ToolPartController extends Controller
     public function delete($id){
     	$toolPart = ToolPart::find($id);
     	if (!empty($toolPart)) {
-    		$toolPart->destroy();
+    		$toolPart->delete();
     		$message = 'OK';
     	}else{
     		$message = 'Data not found';
