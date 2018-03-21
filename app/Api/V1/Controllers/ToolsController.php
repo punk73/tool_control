@@ -4,22 +4,53 @@ namespace App\Api\V1\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Dingo\Api\Routing\Helpers;
 use App\Tool;
 
 
 
 class ToolsController extends Controller
 {
-    //
+    use Helpers;
+
     public function index(Request $request){
+
     	$tool = Tool::where('is_deleted', '=' , 0);
+        $message = 'OK';
 
     	if (isset($request->supplier_id) && $request->supplier_id != "" ) {
     		$tool = $tool->where('supplier_id', '=', $request->supplier_id );
     	}
 
-    	$tool = $tool->get();
-    	return $tool;
+        if (isset($request->no) && $request->no != "" ) {
+            $tool = $tool->where('no', '=', $request->no );
+            
+        }
+
+    	$tool = $tool->paginate();
+
+    	$additional_message = collect(['_meta'=> [
+            'message'=>$message,
+            'count'=> count($tool)
+        ] ]);
+
+        $tool = $additional_message->merge($tool)->toArray();
+        return $tool;
+    }
+
+    public function all(){
+        $tool = Tool::where('is_deleted', '=' , 0);
+        $message = 'OK';
+
+        $tool = $tool->get();
+        
+        return [
+            '_meta' =>[
+                'count' => count($tool),
+                'message' => $message
+            ],
+            'data' => $tool
+        ];
     }
 
     public function show($id){

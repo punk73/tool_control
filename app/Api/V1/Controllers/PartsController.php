@@ -26,13 +26,40 @@ class PartsController extends Controller
         $message = "OK";
 
         try {
-            $part = $part->get();
+            $part = $part->paginate();
         } catch (Exception $e) {
             $message = $e;
         }
 
+        if ( !$part->isEmpty() ) {
+            $part->each(function($model){
+                $model->tools;
+            });
+        }        
 
-        return [
+        return $part;
+
+        /*return [
+            "_meta" => [
+                "count" => count($part),
+                "message" => $message
+            ],
+            "data" => $part
+        ];*/
+    }
+
+    public function all(){
+       $part = Part::where('is_deleted', 0);
+
+       $message = "OK";
+
+       try {
+           $part = $part->get();
+       } catch (Exception $e) {
+           $message = $e;
+       }
+
+       return [
             "_meta" => [
                 "count" => count($part),
                 "message" => $message
@@ -132,6 +159,7 @@ class PartsController extends Controller
     	$part = Part::find($id);
         if (!empty($part) ) {
             $part->is_deleted = 1;
+            // $part->no = $part->no . " is deleted"; //biar bisa input 
             $part->save();
             $message = "OK";
             // return $part->is_deleted;

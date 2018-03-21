@@ -41,6 +41,7 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'suppliers'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\SuppliersController@index' );
+        $api->get('/all', 'App\\Api\\V1\\Controllers\\SuppliersController@all' );
         $api->get('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@show' );
 
         // $api->post('/', 'App\\Api\\V1\\Controllers\\SuppliersController@store' );
@@ -50,6 +51,7 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'parts'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\PartsController@index' );
+        $api->get('/all', 'App\\Api\\V1\\Controllers\\PartsController@all' );
         $api->post('/', 'App\\Api\\V1\\Controllers\\PartsController@store' );
         $api->put('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@update' );
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@delete' );
@@ -58,13 +60,14 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'tools'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\ToolsController@index' );
+        $api->get('/all', 'App\\Api\\V1\\Controllers\\ToolsController@all' );
         $api->post('/', 'App\\Api\\V1\\Controllers\\ToolsController@store' );
         $api->put('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@update' );
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@delete' );
         $api->get('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@show' );
     });
 
-    $api->group(['prefix' => 'toolpart'], function(Router $api){
+    $api->group(['prefix' => 'toolparts'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
         $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );

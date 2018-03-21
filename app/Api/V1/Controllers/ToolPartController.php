@@ -11,7 +11,7 @@ class ToolPartController extends Controller
     //
 
     public function index(Request $request){
-    	$toolPart = ToolPart::select(['tool_id', 'part_id']);
+    	$toolPart = ToolPart::select();
     	
     	$message = 'OK';
 
@@ -24,6 +24,13 @@ class ToolPartController extends Controller
     	}    	
 
     	$toolPart = $toolPart->get();
+
+        if (!$toolPart->isEmpty() ) {
+            $toolPart->each(function($model){
+                $model->tool = $model->tools($model->tool_id);
+                $model->part = $model->parts($model->part_id);
+            });
+        }
 
     	return [
     		'_meta' => [

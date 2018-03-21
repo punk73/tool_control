@@ -14,14 +14,30 @@ class SuppliersController extends Controller
 	use Helpers;
 	
     public function index(Request $request){
+        $message = "OK";
     	$supplier = Supplier::select([
     		'id', 'name', 'code'
-    	])->get();
+    	]);
 
-    	return [
-    		'count' => count($supplier),
-    		'data' => $supplier
-    	];
+        if (isset($request->code)) {
+            $supplier = $supplier->where('code', 'like', $request->code .'%' );
+        }
+
+        if (isset($request->name)) {
+            $supplier = $supplier->where('name', 'like', $request->name .'%' );
+        }        
+
+        $supplier = $supplier->paginate();
+
+        $additional_message = collect(['_meta'=> [
+            'message'=>$message,
+            'count'=> count($supplier)
+        ] ]);
+        //adding additional message
+        $supplier = $additional_message->merge($supplier);
+        $supplier = $supplier->toArray();
+
+        return $supplier;
     }
 
     public function show($id){
@@ -99,6 +115,19 @@ class SuppliersController extends Controller
 	    	],
     		//'data' => $supplier,
     	];
+    }
+
+    public function all(){
+        $supplier = Supplier::all();
+        $message = 'OK';
+
+        return [
+            '_meta' =>[
+                'count' => count($supplier),
+                'message' => $message
+            ],
+            'data'=>    $supplier
+        ];
     }
 
     
