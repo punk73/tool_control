@@ -23,6 +23,8 @@ class CreateTableParts extends Migration
             $table->integer('total_delivery', 0);
             $table->integer('total_qty', 0);
             $table->integer('is_deleted')->default(0);
+            $table->softDeletes();
+
             $table->timestamps();
         });
     }

@@ -161,6 +161,8 @@ class PartsController extends Controller
             $part->is_deleted = 1;
             // $part->no = $part->no . " is deleted"; //biar bisa input 
             $part->save();
+            $part->delete(); //now im using laravel way to soft delete
+
             $message = "OK";
             // return $part->is_deleted;
         }else{

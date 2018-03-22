@@ -21,6 +21,7 @@ class CreateTableToolPart extends Migration
             
             $table->foreign('part_id')->references('id')->on('parts')->onDelete('cascade');
             $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

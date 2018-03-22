@@ -156,6 +156,8 @@ class ToolsController extends Controller
         if (!empty($tool) ) {
             $tool->is_deleted = 1;
             $tool->save();
+            
+            $tool->delete();
             $message = "OK";
         }else{
             $message = "Data not found";

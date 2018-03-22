@@ -25,6 +25,7 @@ class CreateTableTools extends Migration
             $table->integer('balance_shoot')->default(0); //sisanya berapa. bakal editable
             $table->integer('supplier_id');
             $table->integer('is_deleted')->default(0);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
