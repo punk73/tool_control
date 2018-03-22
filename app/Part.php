@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\ToolPart;
 
 class Part extends Model
 {	
@@ -25,7 +26,9 @@ class Part extends Model
         parent::boot();
 
         static::deleting(function($part) {
-            $part->tools()->each(function($model){
+            $id = $part->id;
+            $toolpart = ToolPart::where('part_id','=', $id )->get();
+            $toolpart->each(function($model){
                 $model->delete();
             });
         });

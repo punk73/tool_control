@@ -155,7 +155,7 @@ class ToolsController extends Controller
     	$tool = Tool::find($id);
         if (!empty($tool) ) {
             $tool->is_deleted = 1;
-            $tool->save();
+            // $tool->save();
             
             $tool->delete();
             $message = "OK";
