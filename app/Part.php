@@ -18,14 +18,16 @@ class Part extends Model
 
     public function tools()
     {
-        return $this->belongsToMany('App\Tool', 'tool_part');
+        return $this->belongsToMany('App\Tool', 'tool_part')->withTimestamps();
     }
 
     protected static function boot() { //cascade on soft delete
         parent::boot();
 
         static::deleting(function($part) {
-            $part->tools()->delete();
+            $part->tools()->each(function($model){
+                $model->delete();
+            });
         });
     }
 }

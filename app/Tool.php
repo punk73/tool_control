@@ -31,7 +31,9 @@ class Tool extends Model
         parent::boot();
 
         static::deleting(function($tool) {
-            $tool->parts()->delete();
+            $tool->parts()->each(function($model){
+                $model->delete();
+            });
         });
     }
 }
