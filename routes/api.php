@@ -73,6 +73,10 @@ $api->version('v1', function (Router $api) {
         $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );
     });
 
+    $api->group(['prefix' => 'datas'], function(Router $api){
+        $api->get('/', 'App\\Api\\V1\\Controllers\\DataController@index' );
+    });
+
     $api->group(['prefix' => 'tool_details'], function(Router $api){
         $api->get('/', 'App\\Api\\V1\\Controllers\\TooldetailController@index' );
         $api->post('/', 'App\\Api\\V1\\Controllers\\TooldetailController@store' );
@@ -87,10 +91,4 @@ $api->version('v1', function (Router $api) {
         $api->get('/sync', 'App\\Api\\V1\\Controllers\\Pck31Controller@sync' );
         $api->get('/copy', 'App\\Api\\V1\\Controllers\\Pck31Controller@copy' );
     });
-
-
-
-
-
-
 });

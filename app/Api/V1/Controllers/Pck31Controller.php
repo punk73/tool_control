@@ -94,6 +94,8 @@ class Pck31Controller extends Controller
 			}else{
 				$monthYear = $year . $month;
 			}
+
+
 		// finish set paramter
 		//return ['month' => $year . $month];
 
@@ -102,8 +104,13 @@ class Pck31Controller extends Controller
 		)
 		->where('month', $monthYear)
 		->groupBy('part_no')
-		->groupBy('month')
-		->get();
+		->groupBy('month');
+
+		if (isset($request->part_no)) {
+			$pck31 = $pck31->where('part_no', '=', $request->part_no );		
+		}
+
+		$pck31 = $pck31->get();
 
 		return [
 			'_meta' => [

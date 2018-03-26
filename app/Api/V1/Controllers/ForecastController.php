@@ -21,8 +21,13 @@ class ForecastController extends Controller
     	->where('PartNo', '=', $PartNo )
     	->orderByRaw('convert(datetime,TransDate) desc')
     	->first();
+        
+        if (is_null($trans_date)) {
+            return '';    
+        }
 
     	$trans_date = $trans_date->toArray();
+
     	$trans_date =  $trans_date['TransDate'];
 
     	$forecast = Forecast::select(DB::raw('
@@ -36,7 +41,6 @@ class ForecastController extends Controller
     		DTQTY33 as month4,
     		DTQTY34 as month5
     	'))->where('RT', '=', 'D' );
-
 
     	if (isset($request->trans_date)) {
     		$forecast = $forecast->where('TransDate','=', $request->trans_date);
