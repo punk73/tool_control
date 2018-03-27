@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\ToolPart;
+use App\Pck31;
 
 class Part extends Model
 {	
@@ -20,6 +21,10 @@ class Part extends Model
     public function tools()
     {
         return $this->belongsToMany('App\Tool', 'tool_part')->withTimestamps();
+    }
+
+    public function pck31(){
+
     }
 
     protected static function boot() { //cascade on soft delete
