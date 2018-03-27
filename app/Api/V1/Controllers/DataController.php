@@ -9,6 +9,7 @@ use Dingo\Api\Routing\Helpers;
 use App\Part;
 use App\Pck31;
 use App\Supplier;
+use App\ToolPart;
 use App\Tool;
 use App\Forcast;
 use App\Api\V1\Controllers\ToolPartController;
@@ -22,7 +23,7 @@ class DataController extends Controller
     //helper api
 	use Helpers;
 
-	public function index(Request $request){
+	public function index2(Request $request){
 		$toolpart = new ToolPartController;
 
 		$data = $toolpart->index($request)['data'];
@@ -66,4 +67,49 @@ class DataController extends Controller
 		}
 
 	}
+
+	public function index(Request $request){
+		$toolpart = ToolPart::select();
+		$message = 'OK';
+
+		if (isset($request->part_id) && $request->part_id != '' ) {
+			$toolpart = $toolpart->where('part_id', '=', $request->part_id );
+		}
+
+		if (isset($request->tool_id) && $request->tool_id != '' ) {
+			$toolpart = $toolpart->where('tool_id', '=', $request->tool_id );
+		}
+
+		try {
+			$toolpart = $toolpart->get();
+		} catch (Exception $e) {
+			$message = $e;
+		}
+
+
+		foreach ($toolpart as $key => $value) {
+			$value->parts();
+			$value->tools();
+			
+			$request->part_no = $value['part']['no'];
+			$supplier_id = $value['tool']['supplier_id'];
+			$supplier = Supplier::select(['name', 'code'])->find($supplier_id);
+
+			$value['supplier'] = $supplier;
+			$value['pck31'] = $this->pck31($request);
+			$value['forecast'] = $this->forecast($request);
+		}
+
+		return [
+			'_meta' => [
+				'message' => $message,
+				'count' => count($toolpart)
+			],
+			'data'=>	$toolpart
+		];
+
+
+	}
+
+
 }

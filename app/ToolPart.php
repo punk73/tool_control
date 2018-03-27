@@ -15,23 +15,48 @@ class ToolPart extends Model
     protected $dates = ['deleted_at'];
     protected $table='tool_part';
 
-    public function tools($id){
+    public function tools($id = null){
     	if (!isset($id)) {
-    		return [];
+    		// return [];
+            $id = $this->tool_id;
     	}
 
-    	$tool = Tool::find($id);
+    	$tool = Tool::select([
+            'no',
+            'name',
+            'no_of_tooling',
+            'total_shoot',
+            'guarantee_shoot',
+            'guarantee_remains',
+            'delivery_date',
+            'balance_shoot',
+            'supplier_id',
+        ])->find($id);
 
-    	return $tool;
+        $this->tool = $tool;
+
+    	return  $this;
     }
 
-    public function parts($id){
+    public function parts($id = null){
     	if (!isset($id)) {
-    		return [];
+    		// return [];
+            $id = $this->part_id;
     	}
 
-    	$part = Part::find($id);
+    	$part = Part::select([
+            'no',
+            'name',
+            'supplier_id',
+            'model',
+            'first_value',
+            'total_delivery',
+            'total_qty',
+        ])->find($id);
 
-    	return $part;
+        
+
+        $this->part = $part;
+    	return $this;
     }
 }
