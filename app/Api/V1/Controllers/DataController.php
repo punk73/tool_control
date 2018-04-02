@@ -79,11 +79,27 @@ class DataController extends Controller
 				$request->part_id = $part_no['id'];
 			}
 		}
+
+		if (isset($request->part_name) && $request->part_name != '' ) {
+			$part_name = Part::select('id')->where('name', 'like', $request->part_name.'%' )->first();
+			if ($part_name != null ) {
+				$request->part_id = $part_name['id'];
+			}
+		}
+
 		//setting tool no
 		if (isset($request->tool_no) && $request->tool_no != '' ) {
 			$tool_no = Tool::select('id')->where('no', 'like', $request->tool_no.'%' )->first();
 			if ($tool_no != null ) {
 				$request->tool_id = $tool_no['id'];
+			}
+		}
+
+		//setting tool name
+		if (isset($request->tool_name) && $request->tool_name != '' ) {
+			$tool_name = Tool::select('id')->where('name', 'like', $request->tool_name.'%' )->first();
+			if ($tool_name != null ) {
+				$request->part_id = $tool_name['id'];
 			}
 		}
 
