@@ -3,6 +3,7 @@
 namespace App;
 use App\Part;
 use App\Tool;
+use App\Tool_detail;
 
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,6 +33,25 @@ class ToolPart extends Model
             'balance_shoot',
             'supplier_id',
         ])->find($id);
+
+        $tooldetails = Tool_detail::select(['machine_counter', 'note'])
+        ->where('tool_id', '=', $this->tool_id )
+        ->orderBy('id', 'desc') //biar yang paling bawah jd diatas.    
+        ->first();
+
+        if ( empty( $tooldetails) ) {
+            $tooldetails = null;
+            $note = null;
+        }else{
+            $note = $tooldetails->note;
+            $tooldetails = (int) $tooldetails->machine_counter; //change to int
+        }
+
+
+        //set machine counter di tool
+        $tool->machine_counter = $tooldetails;
+        $tool->note = $note;
+        //set toolS_detail
 
         $this->tool = $tool;
 
