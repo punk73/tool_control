@@ -23,7 +23,7 @@ class DataController extends Controller
     //helper api
 	use Helpers;
 
-	public function index2(Request $request){
+	public function indexBackUp(Request $request){
 		$toolpart = new ToolPartController;
 
 		$data = $toolpart->index($request)['data'];
@@ -71,6 +71,21 @@ class DataController extends Controller
 	public function index(Request $request){
 		$toolpart = ToolPart::select();
 		$message = 'OK';
+		
+		//setting part no
+		if (isset($request->part_no) && $request->part_no != '' ) {
+			$part_no = Part::select('id')->where('no', 'like', $request->part_no.'%' )->first();
+			if ($part_no != null ) {
+				$request->part_id = $part_no['id'];
+			}
+		}
+		//setting tool no
+		if (isset($request->tool_no) && $request->tool_no != '' ) {
+			$tool_no = Tool::select('id')->where('no', 'like', $request->tool_no.'%' )->first();
+			if ($tool_no != null ) {
+				$request->tool_id = $tool_no['id'];
+			}
+		}
 
 		if (isset($request->part_id) && $request->part_id != '' ) {
 			$toolpart = $toolpart->where('part_id', '=', $request->part_id );
@@ -80,33 +95,42 @@ class DataController extends Controller
 			$toolpart = $toolpart->where('tool_id', '=', $request->tool_id );
 		}
 
+
 		try {
-			$toolpart = $toolpart->get();
+			$toolpart = $toolpart->paginate();
 		} catch (Exception $e) {
 			$message = $e;
 		}
 
 
 		foreach ($toolpart as $key => $value) {
+
 			$value->parts();
 			$value->tools();
 			
 			$request->part_no = $value['part']['no'];
-			$supplier_id = $value['tool']['supplier_id'];
-			$supplier = Supplier::select(['name', 'code'])->find($supplier_id);
+			$value['forecast'] = $this->forecast($request);
+			
+			
+
+			$supplier = Supplier::select(['name', 'code'])
+			->where('code', '=', $value['forecast']['SuppCode'] )
+			->first();
 
 			$value['supplier'] = $supplier;
+			// $request->input_date = $value['forecast']['']
+
 			$value['pck31'] = $this->pck31($request);
-			$value['forecast'] = $this->forecast($request);
 		}
 
-		return [
-			'_meta' => [
-				'message' => $message,
-				'count' => count($toolpart)
-			],
-			'data'=>	$toolpart
-		];
+		$meta = collect([
+			'message' => $message,
+			'count' => count($toolpart)
+		]);
+
+		$toolpart = $meta->merge($toolpart);
+
+		return $toolpart;
 
 
 	}

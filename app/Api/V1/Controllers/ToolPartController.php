@@ -27,8 +27,8 @@ class ToolPartController extends Controller
 
         if (!$toolPart->isEmpty() ) {
             $toolPart->each(function($model){
-                $model->tool = $model->tools($model->tool_id);
-                $model->part = $model->parts($model->part_id);
+                $model->tools();
+                $model->parts();
             });
         }
 

@@ -7,6 +7,7 @@ use JWTAuth;
 use Dingo\Api\Routing\Helpers;
 use App\Pck31;
 use DB;
+use Carbon\Carbon;
 
 class Pck31Controller extends Controller
 {
@@ -76,6 +77,7 @@ class Pck31Controller extends Controller
 
 	public function index(Request $request){ //get summary per part_no
 		// $pck31 = Pck31::all();
+
 		//set parameter
 			if (isset($request->month)) {
 				$month = $request->month;
@@ -95,20 +97,37 @@ class Pck31Controller extends Controller
 				$monthYear = $year . $month;
 			}
 
+			if (isset($request->input_date)) {
+				$input_date = $request->input_date;
+				$input_date = Carbon::parse($input_date)->format('m/d/Y');
 
+
+			}else{
+				$input_date = date('m/d/Y') ;
+			}
+
+			// return $input_date;
 		// finish set paramter
 		//return ['month' => $year . $month];
 
 		$pck31 = Pck31::select(
 			DB::raw('month,part_no,sum(qty) as total_qty')
 		)
-		->where('month', $monthYear)
+		// ->where('month', $monthYear) // changes filtering by input by
+		->whereDate('input_date', '<=', $input_date  ) //hari ini, kebelakang
 		->groupBy('part_no')
 		->groupBy('month');
 
 		if (isset($request->part_no)) {
 			$pck31 = $pck31->where('part_no', '=', $request->part_no );		
 		}
+
+		// masih bermaslah
+		/*if (isset($request->input_date) && $request->input_date != '' ) {
+
+			$pck31 = $pck31->where('input_date', '<', $request->input_date );		
+			// return $request;					
+		}*/
 
 		$pck31 = $pck31->get();
 
