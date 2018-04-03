@@ -84,11 +84,13 @@ class ToolsController extends Controller
         $tool->name = $request->name;
         $tool->supplier_id = $request->supplier_id;
         $tool->no_of_tooling = $request->no_of_tooling;
-        $tool->total_shoot = $request->total_shoot;
         $tool->guarantee_shoot = $request->guarantee_shoot;
-        $tool->guarantee_remains = $request->guarantee_remains;
         $tool->delivery_date = $request->delivery_date;
-        $tool->balance_shoot = $request->balance_shoot;
+        $tool->start_value = $request->start_value;
+        
+        // $tool->total_shoot = $request->total_shoot;
+        // $tool->guarantee_remains = $request->guarantee_remains;
+        // $tool->balance_shoot = $request->balance_shoot;
 
         try {
             $tool->save();
@@ -119,15 +121,16 @@ class ToolsController extends Controller
 
             $tool->no_of_tooling = (isset($request->no_of_tooling) ) ? $request->no_of_tooling : $tool->no_of_tooling;
             
-            $tool->total_shoot = (isset($request->total_shoot) ) ? $request->total_shoot : $tool->total_shoot;
-
             $tool->guarantee_shoot = (isset($request->guarantee_shoot) ) ? $request->guarantee_shoot : $tool->guarantee_shoot;
-
-            $tool->guarantee_remains = (isset($request->guarantee_remains) ) ? $request->guarantee_remains : $tool->guarantee_remains;
-			
-			$tool->delivery_date = (isset($request->delivery_date) ) ? $request->delivery_date : $tool->delivery_date;
             
-            $tool->balance_shoot = (isset($request->balance_shoot) ) ? $request->balance_shoot : $tool->balance_shoot;
+            $tool->delivery_date = (isset($request->delivery_date) ) ? $request->delivery_date : $tool->delivery_date;
+
+            // $tool->total_shoot = (isset($request->total_shoot) ) ? $request->total_shoot : $tool->total_shoot;
+
+            // $tool->guarantee_remains = (isset($request->guarantee_remains) ) ? $request->guarantee_remains : $tool->guarantee_remains;
+            
+            
+            // $tool->balance_shoot = (isset($request->balance_shoot) ) ? $request->balance_shoot : $tool->balance_shoot;
 
 
             try {

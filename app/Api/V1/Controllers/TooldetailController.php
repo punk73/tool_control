@@ -8,49 +8,5 @@ use App\Tool_detail;
 
 class TooldetailController extends Controller
 {
-    public function index(){
-    	$message = 'OK';
-    	$tool_detail = Tool_detail::select();
-
-        try {
-            $tool_detail = $tool_detail->get();
-        } catch (Exception $e) {
-            $message = $e;   
-        }
-            
-    	return [
-            '_meta' => [
-                'count' => count($tool_detail),
-                'message' => $message
-            ],
-            'data' =>    $tool_detail
-        ];
-    }
-
-
-
-    public function store(Request $request){
-    	$tool_detail = new Tool_detail;
-    	$tool_detail->tool_id = $request->tool_id;
-    	$tool_detail->machine_counter = $request->machine_counter;
-    	$tool_detail->tanggal = $request->tanggal;
-    	$tool_detail->note = $request->note;
-
-    	$message = "OK";
-
-    	try {
-    		$tool_detail->save();
-    	} catch (Exception $e) {
-    		$message = $e;
-    	}
-
-    	return [
-    		'_meta'=>[
-    			'count' => count($tool_detail),
-    			'message' => $message
-    		],
-    		'data' => $tool_detail
-    	];
-
-    }
+    
 }
