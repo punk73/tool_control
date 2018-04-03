@@ -29,8 +29,6 @@ $api->version('v1', function (Router $api) {
                 ]);
             }
         ]);
-
-
     });
 
     $api->get('hello', function() {
@@ -77,9 +75,9 @@ $api->version('v1', function (Router $api) {
         $api->get('/', 'App\\Api\\V1\\Controllers\\DataController@index' );
     });
 
-    $api->group(['prefix' => 'tool_details'], function(Router $api){ //machine counter
-        $api->get('/', 'App\\Api\\V1\\Controllers\\TooldetailController@index' );
-        $api->post('/', 'App\\Api\\V1\\Controllers\\TooldetailController@store' );
+    $api->group(['prefix' => 'machines'], function(Router $api){ //machine counter
+        $api->get('/', 'App\\Api\\V1\\Controllers\\MachineController@index' );
+        $api->post('/', 'App\\Api\\V1\\Controllers\\MachineController@store' );
     });
 
     $api->group(['prefix' => 'forecasts'], function(Router $api){

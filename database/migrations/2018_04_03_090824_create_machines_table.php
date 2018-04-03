@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableToolDetails extends Migration
+class CreateMachinesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,16 @@ class CreateTableToolDetails extends Migration
      */
     public function up()
     {
-        Schema::create('tool_details', function (Blueprint $table) {
+        Schema::create('machines', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tool_id')->unsigned();
             $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade'); //add reference
-            $table->integer('total_shoot')->default(0);
-            $table->float('guarantee_remains')->default(0);
-            $table->integer('balance_shoot')->default(0);
-            $table->string('forecast_trans_date', 11);
+            $table->integer('counter')->default(0);
+            $table->string('tanggal', 11);
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }
-            
-            
 
     /**
      * Reverse the migrations.
@@ -34,6 +31,6 @@ class CreateTableToolDetails extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tool_details');
+        Schema::dropIfExists('machines');
     }
 }
