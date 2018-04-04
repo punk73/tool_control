@@ -8,4 +8,5 @@ class Forecast extends Model
 {
     protected $connection = 'sqlsrv';
     protected $table = 'ForecastN';
+
 }

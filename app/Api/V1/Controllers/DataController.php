@@ -15,7 +15,7 @@ use App\Forcast;
 use App\Api\V1\Controllers\ToolPartController;
 use App\Api\V1\Controllers\Pck31Controller;
 use App\Api\V1\Controllers\ForecastController;
-
+use Carbon\Carbon;
 use DB;
 
 class DataController extends Controller
@@ -23,32 +23,6 @@ class DataController extends Controller
     //helper api
 	use Helpers;
 
-	public function indexBackUp(Request $request){
-		$toolpart = new ToolPartController;
-
-		$data = $toolpart->index($request)['data'];
-		$newData = [];
-
-		foreach ($data as $key => $value) {
-			$supplier_id = $value['tool']['supplier_id'];
-			$request->part_no = $value['part']['no'];
-
-			$supplier = Supplier::find($supplier_id);
-			$forecast = $this->forecast($request);
-			$pck31 = $this->pck31($request); //diisi dengan request->part no
-			
-			
-			// set Value;
-			$value['supplier'] = $supplier;
-			$value['pck31'] = $pck31;
-			$value['forecast'] = $forecast;
-
-			$newData[] = $value;
-		}
-
-		return $newData;
-
-	}
 
 	public function pck31(Request $request){
 		$pck31 = new Pck31Controller;
@@ -71,7 +45,9 @@ class DataController extends Controller
 	public function index(Request $request){
 		$toolpart = ToolPart::select();
 		$message = 'OK';
+		// $tgl = "04/03/2018";
 		
+		// return Carbon::createFromFormat('m/d/Y', $tgl )->format('Y-m-d');
 		//setting part no
 		if (isset($request->part_no) && $request->part_no != '' ) {
 			$part_no = Part::select('id')->where('no', 'like', $request->part_no.'%' )->first();
@@ -122,12 +98,14 @@ class DataController extends Controller
 		foreach ($toolpart as $key => $value) {
 
 			$value->parts();
-			$value->tools();
+
+			$value->tools(null, $value['part']['no'] ); //parameter pertama tool id, ke dua part no
 			
 			$request->part_no = $value['part']['no'];
 			$value['forecast'] = $this->forecast($request);
 			
-			
+			//get total shoot 
+			// $value['detail'] = 			
 
 			$supplier = Supplier::select(['name', 'code'])
 			->where('code', '=', $value['forecast']['SuppCode'] )
@@ -147,6 +125,35 @@ class DataController extends Controller
 		$toolpart = $meta->merge($toolpart);
 
 		return $toolpart;
+	}
+
+	public function indexTEUJADI(Request $request){
+		//we need to specify trans_date as default parameter
+
+		
+		$tool = Tool::select([
+			'id',
+			'no',
+			'name',
+			'no_of_tooling',
+			'start_value',
+			'guarantee_shoot',
+			'delivery_date',
+			'supplier_id',
+		])
+		->get();
+
+		foreach ($tool as $key => $value) {
+			if ( $value->hasToolPart() ) {
+				$value->toolpart();
+				$value->details;	
+			}else{
+				$tool->forget($key);
+			}
+		}
+
+
+		return $tool;
 	}
 
 
