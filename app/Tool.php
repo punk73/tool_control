@@ -16,6 +16,11 @@ class Tool extends Model
     protected $dates = ['deleted_at'];
     protected $hidden = ['is_deleted'];
     
+    protected $casts = [ 
+        'start_value' => 'integer', 
+        'guarantee_shoot' => 'integer'
+    ];
+    
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
@@ -65,7 +70,6 @@ class Tool extends Model
             'guarantee_after_forecast',
             'balance_shoot',
             'trans_date',
-
         ])
         ->where('trans_date', '=', $trans_date )
         ->where('tool_id', '=', $tool_id )

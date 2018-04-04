@@ -15,8 +15,15 @@ class ToolPart extends Model
 {
     use SoftDeletes;
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
-    protected $dates = ['deleted_at'];
-    protected $table='tool_part';
+    protected $dates  = ['deleted_at'];
+    protected $table  = 'tool_part';
+
+    protected $casts = [
+        'part_id' => 'integer',
+        'tool_id' => 'integer',
+        'cavity' => 'integer',
+        'is_independent' => 'integer'
+    ];
 
     public function tools($id = null, $PartNo = null ){
     	if (!isset($id)) {

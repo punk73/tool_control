@@ -14,6 +14,12 @@ class Part extends Model
 	protected $dates = ['deleted_at'];
 	protected $hidden = ['is_deleted'];
 
+    protected $casts = [
+        'first_value' => 'integer',
+        'total_delivery' => 'integer',
+        'total_qty' => 'integer'
+    ];
+
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
