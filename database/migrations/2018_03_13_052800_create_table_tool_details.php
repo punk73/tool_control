@@ -20,7 +20,7 @@ class CreateTableToolDetails extends Migration
             $table->integer('total_shoot')->default(0);
             $table->float('guarantee_after_forecast')->default(0);
             $table->integer('balance_shoot')->default(0);
-            $table->string('forecast_trans_date', 11);
+            $table->string('trans_date', 11);
             $table->timestamps();
         });
     }
