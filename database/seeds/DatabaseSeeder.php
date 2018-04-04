@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call(toolpartSeeders::class);
         $this->call(UserSeeder::class);
         $this->call(PCK31Seeder::class);
+        $this->call(ToolDetailSeeder::class);
+        
         
     }
 }

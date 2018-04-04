@@ -16,9 +16,9 @@ class CreateTableToolDetails extends Migration
         Schema::create('tool_details', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tool_id')->unsigned();
-            $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade'); //add reference
+              $table->foreign('tool_id')->references('id')->on('tools')->onDelete('cascade'); //add reference
             $table->integer('total_shoot')->default(0);
-            $table->float('guarantee_remains')->default(0);
+            $table->float('guarantee_after_forecast')->default(0);
             $table->integer('balance_shoot')->default(0);
             $table->string('forecast_trans_date', 11);
             $table->timestamps();
