@@ -10,6 +10,7 @@ use DB;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ToolPart extends Model
 {
@@ -63,7 +64,7 @@ class ToolPart extends Model
         $tool->note = $note;
 
         //set toolS_detail
-        if (isset($PartNo)) {
+        if (isset($PartNo) && $PartNo !== null ) {
             # code...
             $trans_date = Forecast::select(DB::raw('TransDate'))
             ->where('TransDate', '!=', 'EOF')
@@ -104,5 +105,29 @@ class ToolPart extends Model
 
         $this->part = $part;
     	return $this;
+    }
+
+    public function tool($id){
+        return $this->tool = Tool::select([
+            'no',
+            'name',
+            'no_of_tooling',
+            'start_value',
+            'guarantee_shoot',
+            'delivery_date',
+            'supplier_id',
+        ])->find($id);
+    }
+
+    public function part($id){
+        return $this->part = Part::select([
+            'no',
+            'name',
+            'supplier_id',
+            'model',
+            'first_value',
+            'total_delivery',
+            'total_qty',
+        ])->find($id);
     }
 }

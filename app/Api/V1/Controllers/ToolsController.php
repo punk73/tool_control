@@ -38,8 +38,21 @@ class ToolsController extends Controller
         return $tool;
     }
 
-    public function all(){
-        $tool = Tool::where('is_deleted', '=' , 0);
+    public function all(Request $request){
+        $tool = Tool::select([
+            'id',
+            'no',
+            'name',
+            'no_of_tooling',
+            
+        ])->where('is_deleted', '=' , 0);
+
+        if ($request->get('query') !== null ) {
+            
+            $tool = $tool->where('no', 'like', $request->get('query').'%' );
+        }
+
+
         $message = 'OK';
 
         $tool = $tool->get();

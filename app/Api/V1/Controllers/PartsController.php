@@ -48,9 +48,17 @@ class PartsController extends Controller
         ];*/
     }
 
-    public function all(){
-       $part = Part::where('is_deleted', 0);
+    public function all(Request $request){
+       $part = Part::select([
+            'id',
+            'no',
+            'name',
+       ])->where('is_deleted', 0);
 
+       if ($request->get('query') !== null ) {
+           $part = $part->where('no', 'like', $request->get('query')."%" );
+       }
+         
        $message = "OK";
 
        try {

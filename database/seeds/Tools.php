@@ -16,8 +16,8 @@ class Tools extends Seeder
     	$supplier = Supplier::all();
 
         for ($i=0; $i < 100 ; $i++) { 
-        	$no = str_random(30);
-        	$name = str_random(25);
+        	$no = 'toolno' . $i; //str_random(30);
+        	$name = 'nama_tool' . $i; //str_random(25);
         	$start_value = ceil(rand(0, 99999));
         	$guarantee_shoot = ceil(rand(0, 99999));
         	// $guarantee_remains = rand(0, 99999);

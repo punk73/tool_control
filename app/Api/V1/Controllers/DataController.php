@@ -28,7 +28,12 @@ class DataController extends Controller
 		$pck31 = new Pck31Controller;
 		// $request->part_no = '1SS355VM9';
 		$pck31 = $pck31->index($request);
-		return $pck31['data'][0];
+		
+		if (isset($pck31['data'][0])) {
+		 	return $pck31['data'][0];
+		} else{
+		 	return null;
+		}
 	}
 
 	public function forecast(Request $request){
@@ -36,8 +41,12 @@ class DataController extends Controller
 		$forecast = new ForecastController;
 		$forecast = $forecast->index($request);
 		if ($forecast != '') {
-			# code...
-			return $forecast[0];
+			if ($forecast[0]) {
+				# code...
+				return $forecast[0];
+			}else{
+				return null;
+			}
 		}
 
 	}
@@ -55,6 +64,8 @@ class DataController extends Controller
 				$request->part_id = $part_no['id'];
 			}
 		}
+
+
 
 		if (isset($request->part_name) && $request->part_name != '' ) {
 			$part_name = Part::select('id')->where('name', 'like', $request->part_name.'%' )->first();
@@ -95,6 +106,7 @@ class DataController extends Controller
 		}
 
 
+
 		foreach ($toolpart as $key => $value) {
 
 			$value->parts();
@@ -102,20 +114,23 @@ class DataController extends Controller
 			$value->tools(null, $value['part']['no'] ); //parameter pertama tool id, ke dua part no
 			
 			$request->part_no = $value['part']['no'];
-			$value['forecast'] = $this->forecast($request);
-			
-			//get total shoot 
-			// $value['detail'] = 			
-
+			$value['forecast'] = $this->forecast($request);		
 			$supplier = Supplier::select(['name', 'code'])
 			->where('code', '=', $value['forecast']['SuppCode'] )
 			->first();
+			
+			//hapus model jika forecast tidak ditemukan.
+			if ($value['forecast'] == null ) {
+				$toolpart->forget($key);
+				continue;
+			}
 
 			$value['supplier'] = $supplier;
 			// $request->input_date = $value['forecast']['']
-
 			$value['pck31'] = $this->pck31($request);
+
 		}
+
 
 		$meta = collect([
 			'message' => $message,
@@ -123,11 +138,11 @@ class DataController extends Controller
 		]);
 
 		$toolpart = $meta->merge($toolpart);
-
+		$toolpart['data'] = array_values( $toolpart['data'] );
 		return $toolpart;
 	}
 
-	public function indexTEUJADI(Request $request){
+	public function indexBackUp(Request $request){
 		//we need to specify trans_date as default parameter
 
 		

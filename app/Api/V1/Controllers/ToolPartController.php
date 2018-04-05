@@ -56,8 +56,8 @@ class ToolPartController extends Controller
     		$message = $e;
     	}
             
-        $toolPart->tool = $toolPart->tools($toolPart->tool_id);
-        $toolPart->part = $toolPart->parts($toolPart->part_id);
+        $toolPart->tool = $toolPart->tool($toolPart->tool_id);
+        $toolPart->part = $toolPart->part($toolPart->part_id);
 
     	return [
     		'_meta' => [

@@ -19,6 +19,8 @@ class ForecastController extends Controller
     	->where('TransDate', '!=', 'EOF')
     	// ->where('SuppCode', '=', $SuppCode )
     	->where('PartNo', '=', $PartNo )
+        // ->where('PartNo', 'like', $PartNo .'%' )
+
     	->orderByRaw('convert(datetime,TransDate) desc')
     	->first();
         
@@ -48,9 +50,14 @@ class ForecastController extends Controller
     		$forecast = $forecast->where('TransDate','=', $trans_date);
     	}
 
-		$forecast = $forecast->where('PartNo','=', $PartNo);
-    	
+		// $forecast = $forecast->where('PartNo','like', $PartNo . '%');
+        $forecast = $forecast->where('PartNo','=', $PartNo);
+
     	$forecast = $forecast->get();
+
+        $forecast->each(function($model){
+            $model->total = ($model->month1+$model->month2+$model->month3+$model->month4+$model->month5);
+        });
 
     	return $forecast;
     	

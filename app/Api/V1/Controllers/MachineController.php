@@ -32,7 +32,7 @@ class MachineController extends Controller
     public function store(Request $request){
     	$Machine = new Machine;
     	$Machine->tool_id = $request->tool_id;
-    	$Machine->counter = $request->machine_counter;
+    	$Machine->counter = $request->counter;
     	$Machine->tanggal = $request->tanggal;
     	$Machine->note = $request->note;
 

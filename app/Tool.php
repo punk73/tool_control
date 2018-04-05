@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\ToolPart;
 use App\Part;
 use App\Tool_detail;
+use App\Machine;
 
 class Tool extends Model
 {
@@ -27,7 +28,7 @@ class Tool extends Model
 
     public function parts()
     {
-        return $this->belongsToMany('App\Part', 'tool_part');
+        return $this->belongsToMany('App\Part', 'tool_part')->withTimestamps()->withPivot('cavity');
     }
 
     public function toolpart(){
@@ -44,6 +45,14 @@ class Tool extends Model
         $this->toolpart = $toolpart;
 
         return $this;
+    }
+
+    public function machines(){
+        return $this->hasMany('App\Machine');
+    }
+
+    public function machine(){
+        // $machine = Machine::select()
     }
 
     public function hasToolPart(){
