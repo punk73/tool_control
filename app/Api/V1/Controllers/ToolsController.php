@@ -52,6 +52,10 @@ class ToolsController extends Controller
             $tool = $tool->where('no', 'like', $request->get('query').'%' );
         }
 
+        if ($request->get('supplier_id') !== null ) {   
+            $tool = $tool->where('supplier_id', '=', $request->get('supplier_id') );
+        }
+
 
         $message = 'OK';
 

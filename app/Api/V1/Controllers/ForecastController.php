@@ -60,6 +60,5 @@ class ForecastController extends Controller
         });
 
     	return $forecast;
-    	
     }
 }

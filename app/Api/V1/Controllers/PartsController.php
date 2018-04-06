@@ -58,6 +58,10 @@ class PartsController extends Controller
        if ($request->get('query') !== null ) {
            $part = $part->where('no', 'like', $request->get('query')."%" );
        }
+
+       if ($request->get('supplier_id') !== null ) {
+           $part = $part->where('supplier_id', '=', $request->get('supplier_id') );
+       }
          
        $message = "OK";
 
