@@ -34,6 +34,7 @@ class PartsController extends Controller
         if ( !$part->isEmpty() ) {
             $part->each(function($model){
                 $model->tools;
+                $model->detail = $model->detail();
             });
         }        
 
@@ -109,8 +110,10 @@ class PartsController extends Controller
         $part->supplier_id = $request->supplier_id;
         $part->model = $request->model;
         $part->first_value = $request->first_value;
-        $part->total_delivery = $request->total_delivery;
-        $part->total_qty = $request->total_qty;
+        $part->date_of_first_value = $request->date_of_first_value;
+
+        // $part->total_delivery = $request->total_delivery;
+        // $part->total_qty = $request->total_qty;
 
         try {
             $part->save();
@@ -143,8 +146,8 @@ class PartsController extends Controller
             
             $part->first_value = (isset($request->first_value) ) ? $request->first_value : $part->first_value;
 
-            $part->total_delivery = (isset($request->total_delivery) ) ? $request->total_delivery : $part->total_delivery;
-            $part->total_qty = (isset($request->total_qty) ) ? $request->total_qty : $part->total_qty; 
+            $part->date_of_first_value = (isset($request->date_of_first_value) ) ? $request->date_of_first_value : $part->date_of_first_value;
+
 
             try {
                 $part->save();

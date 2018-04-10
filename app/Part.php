@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\ToolPart;
 use App\Pck31;
+use App\Part_detail;
 
 class Part extends Model
 {	
@@ -30,6 +31,19 @@ class Part extends Model
     }
 
     public function pck31(){
+    }
+
+    public function detail(){
+        $id = $this->id;
+        $part_detail = Part_detail::select([
+            'total_delivery',
+            'total_qty',
+            'trans_date'
+        ])->where('part_id', '=', $id )
+        ->orderBy('trans_date', 'desc')
+        ->first();
+        
+        return $part_detail;
 
     }
 

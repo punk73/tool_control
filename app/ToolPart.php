@@ -92,16 +92,26 @@ class ToolPart extends Model
     	}
 
     	$part = Part::select([
+            'id',
             'no',
             'name',
             'supplier_id',
             'model',
             'first_value',
-            'total_delivery',
-            'total_qty',
+            // 'total_delivery',
+            // 'total_qty',
         ])->find($id);
 
-        
+        $detail = $part->detail();
+        if ($detail != null ) {
+            $part->total_delivery = $detail->total_delivery ;
+            $part->total_qty = $detail->total_qty ;
+            $part->trans_date = $detail->trans_date ;
+        }else {
+            $part->total_delivery = null;
+            $part->total_qty = null;
+            $part->trans_date = null;
+        }
 
         $this->part = $part;
     	return $this;

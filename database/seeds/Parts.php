@@ -4,6 +4,7 @@ use Illuminate\Database\Seeder;
 use App\Part;
 use App\Supplier;
 use App\Forecast;
+use App\Part_detail;
 
 
 class Parts extends Seeder
@@ -26,7 +27,7 @@ class Parts extends Seeder
 		->get();	
 
 		$arrayPartNo = [];
-
+		$part_id = 0;
 		foreach ($forecast as $key => $value) {
 
 			if (!in_array($value['PartNo'], $arrayPartNo )) {
@@ -47,7 +48,7 @@ class Parts extends Seeder
 			$first_value = ceil(rand(0, 99999));
 			$total_delivery = $first_value;
 			$total_qty = 0;
-
+			$date_of_first_value = '2018-04-01';
 
 			$part = new Part;
 			$part->no = $value['PartNo'];
@@ -55,11 +56,17 @@ class Parts extends Seeder
 			$part->supplier_id = $supplier_id;
 			$part->model = $model;
 			$part->first_value = $first_value;
-			$part->total_delivery = $total_delivery;
-			$part->total_qty = $total_qty;
-			echo $key;
-			echo '.';
+			$part->date_of_first_value = $date_of_first_value;
 			$part->save();
+			
+
+			$part_detail = new Part_detail;
+			$part_id = $part_id + 1;
+			$part_detail->part_id = $part_id;
+			$part_detail->total_delivery = $total_delivery;
+			$part_detail->total_qty = $total_qty;
+			$part_detail->trans_date = '2018-03-04';
+			$part_detail->save();
 
 		}
 		

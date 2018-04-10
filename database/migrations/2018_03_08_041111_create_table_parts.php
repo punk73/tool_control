@@ -20,8 +20,7 @@ class CreateTableParts extends Migration
             $table->integer('supplier_id');
             $table->string('model')->nullable();
             $table->integer('first_value', 0);
-            $table->integer('total_delivery', 0);
-            $table->integer('total_qty', 0);
+            $table->string('date_of_first_value', 12 );
             $table->integer('is_deleted')->default(0);
             $table->softDeletes();
 
