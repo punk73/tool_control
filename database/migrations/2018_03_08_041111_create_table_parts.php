@@ -15,7 +15,8 @@ class CreateTableParts extends Migration
     {
         Schema::create('parts', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('no')->unique();
+            $table->string('no');
+            // $table->string('no')->unique();
             $table->string('name');
             $table->integer('supplier_id');
             $table->string('model')->nullable();
