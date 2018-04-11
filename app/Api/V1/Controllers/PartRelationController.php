@@ -12,6 +12,11 @@ class PartRelationController extends Controller
     	$part_relation = Part_relation::all();
     	$message = 'OK';
     	
+        $part_relation->each(function($model){
+            $model->parentPart();
+            $model->childrenPart();
+        });
+
     	return [
             "_meta" => [
                 "count" => count($part_relation),
@@ -19,7 +24,6 @@ class PartRelationController extends Controller
             ],
             "data" => $part_relation
         ];
-
     }
 
     public function store(Request $request){
