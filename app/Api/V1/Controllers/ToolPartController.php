@@ -46,7 +46,9 @@ class ToolPartController extends Controller
         $toolPart = new ToolPart;
     	$toolPart->part_id = $request->part_id;
     	$toolPart->tool_id = $request->tool_id;
+        $toolPart->is_independent = $request->is_independent;
         $toolPart->cavity = $request->cavity;
+
 
     	$message = 'OK';
 
