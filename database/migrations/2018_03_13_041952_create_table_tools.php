@@ -23,6 +23,8 @@ class CreateTableTools extends Migration
             $table->integer('guarantee_shoot')->default(0);
             // $table->float('guarantee_remains')->default(0);
             $table->string('delivery_date', 11); //static
+            $table->string('start_value_date', 11); //static
+            
             // $table->integer('balance_shoot')->default(0); //sisanya berapa. bakal editable
             $table->integer('supplier_id');
             $table->integer('is_deleted')->default(0);

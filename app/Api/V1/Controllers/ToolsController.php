@@ -104,6 +104,7 @@ class ToolsController extends Controller
         $tool->guarantee_shoot = $request->guarantee_shoot;
         $tool->delivery_date = $request->delivery_date;
         $tool->start_value = $request->start_value;
+        $tool->start_value_date = $request->start_value_date;
         
         // $tool->total_shoot = $request->total_shoot;
         // $tool->guarantee_remains = $request->guarantee_remains;
@@ -141,6 +142,8 @@ class ToolsController extends Controller
             $tool->guarantee_shoot = (isset($request->guarantee_shoot) ) ? $request->guarantee_shoot : $tool->guarantee_shoot;
             
             $tool->delivery_date = (isset($request->delivery_date) ) ? $request->delivery_date : $tool->delivery_date;
+
+            $tool->start_value_date = (isset($request->start_value_date) ) ? $request->start_value_date : $tool->start_value_date;
 
             // $tool->total_shoot = (isset($request->total_shoot) ) ? $request->total_shoot : $tool->total_shoot;
 
