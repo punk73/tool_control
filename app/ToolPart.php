@@ -136,8 +136,8 @@ class ToolPart extends Model
             'supplier_id',
             'model',
             'first_value',
-            'total_delivery',
-            'total_qty',
+            // 'total_delivery',
+            // 'total_qty',
         ])->find($id);
     }
 }

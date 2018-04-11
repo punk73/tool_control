@@ -5,6 +5,8 @@ namespace App\Api\V1\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\ToolPart;
+use App\Tool;
+use App\Part;
 
 class ToolPartController extends Controller
 {
@@ -14,6 +16,40 @@ class ToolPartController extends Controller
     	$toolPart = ToolPart::select();
     	
     	$message = 'OK';
+
+        //searching tool number first
+        if ($request->tool_number && $request->tool_number !='' ) {
+            $tool = Tool::select(['id', 'no'])->where('no', 'like', $request->tool_number . '%' )->get();
+            //jika tidak kosong baru filter
+            if(!$tool->isEmpty()){
+                $id = [];
+                foreach ($tool as $key => $value) {
+                    $id[] = $value['id'];        
+                }
+
+                $toolPart = $toolPart->whereIn('tool_id', $id );
+            }
+
+        }
+
+        if ($request->part_number && $request->part_number != '' ) {
+            $part = Part::select(['id', 'no'])->where('no', 'like', $request->part_number . '%' )->get();
+            //jika tidak kosong baru filter
+            if(!$part->isEmpty()){
+                $id = [];
+                foreach ($part as $key => $value) {
+                    $id[] = $value['id'];        
+                }
+
+                $toolPart = $toolPart->whereIn('part_id', $id );
+            }
+        }
+
+        if ($request->cavity) {
+            $toolPart = $toolPart->where('cavity', '=', $request->cavity );
+        }
+
+        //        
 
     	if ($request->tool_id) {
     		$toolPart = $toolPart->where('tool_id', '=', $request->tool_id );
