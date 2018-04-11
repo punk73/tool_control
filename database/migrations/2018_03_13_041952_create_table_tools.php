@@ -15,7 +15,8 @@ class CreateTableTools extends Migration
     {
         Schema::create('tools', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('no')->unique();
+            $table->string('no');
+            // $table->string('no')->unique();
             $table->string('name');
             $table->string('no_of_tooling')->default('TL-01');
             $table->integer('start_value')->default(0);
