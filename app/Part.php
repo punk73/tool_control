@@ -51,7 +51,11 @@ class Part extends Model
         ->first();
         
         return $part_detail;
+    }
 
+    public function getHighestTotalDelivery(){
+        //dengan order by, maka yang pertama muncul adalah yang paling gede
+        return $this->hasOne('App\Part_detail')->orderBy('total_delivery', 'desc');
     }
 
     protected static function boot() { //cascade on soft delete

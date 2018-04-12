@@ -179,10 +179,12 @@ class DataController extends Controller
 		}else{
 			// $trans_date = date('Y-m-d');
 			$trans_date = null;
-
 		}
 
 		// return $trans_date;
+
+		// $tools = Tool::with(['parts.getHighestTotalDelivery'])->get();
+		// return $tools;
 
 		//get tool, dengan semua data yang terkait di dalamnya.
 		$tools = Tool::select([
@@ -216,7 +218,7 @@ class DataController extends Controller
 					'total_delivery',
 					'total_qty',
 					'trans_date',
-				]); //should always return one result based on trans_date
+				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
 
 				if (isset($trans_date) && $trans_date != null ) {
 					$part_detail = $part_detail->where('trans_date', '=', $trans_date );
@@ -231,10 +233,20 @@ class DataController extends Controller
 					'guarantee_after_forecast',
 					'balance_shoot',
 					'trans_date'
-				]); //should always return one result based on trans_date
+				])->orderBy('total_shoot', 'desc'); //should always return one result based on trans_date
 				
 				if (isset($trans_date) && $trans_date != null ) {
 					$tool_detail = $tool_detail->where('trans_date', '=', $trans_date );
+				}
+			},
+
+			'parts.getHighestTotalDelivery' => function ($highest_total_delivery) use ($trans_date){
+
+			},
+
+			'getHighestTotalShoot' => function ($highest_total_shoot) use ($trans_date){
+				if (isset($trans_date)) {
+					$highest_total_shoot->where('trans_date', '=', $trans_date );
 				}
 			},
 
@@ -244,6 +256,7 @@ class DataController extends Controller
 		->get()
 		->each(function($tool){
 			$highest_total_shoot = 0;
+			
 			foreach ($tool->parts as $key => $part) {
 				//cek pivot nya, apakah independent atau tidak
 				if ($part->pivot->is_independent == '0') {
@@ -294,8 +307,6 @@ class DataController extends Controller
 				
 				$toolDetail->save();
 			}
-
-
 		});
 
 		return $tools;

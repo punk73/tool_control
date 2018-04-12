@@ -65,6 +65,10 @@ class Tool extends Model
     public function details($trans_date = null){ //get all detail
     	return $this->hasMany('App\Tool_detail');
     }
+
+    public function getHighestTotalShoot(){
+        return $this->hasOne('app\Tool_detail')->orderBy('total_shoot', 'desc');
+    }
  
     public function detail($tool_id, $trans_date = null){ //get detail with specific trans date
         if (!isset($tool_id)) {
