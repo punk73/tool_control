@@ -27,10 +27,17 @@ class Part extends Model
 
     public function tools()
     {
-        return $this->belongsToMany('App\Tool', 'tool_part')->withTimestamps()->withPivot('cavity');
+        return $this->belongsToMany('App\Tool', 'tool_part')
+        ->withTimestamps()
+        ->withPivot('cavity', 'is_independent');
     }
 
     public function pck31(){
+
+    }
+
+    public function details(){
+        return $this->hasMany('App\Part_detail');
     }
 
     public function detail(){

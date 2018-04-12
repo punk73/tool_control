@@ -11,4 +11,8 @@ class Part_detail extends Model
         'total_delivery' => 'integer',
         'total_qty' => 'integer'
     ];
+
+    public function part(){
+    	return $this->belongsTo('App\Part');
+    }
 }

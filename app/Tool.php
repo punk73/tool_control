@@ -28,7 +28,9 @@ class Tool extends Model
 
     public function parts()
     {
-        return $this->belongsToMany('App\Part', 'tool_part')->withTimestamps()->withPivot('cavity');
+        return $this->belongsToMany('App\Part', 'tool_part')
+        ->withTimestamps()
+        ->withPivot('cavity', 'is_independent');
     }
 
     public function toolpart(){
