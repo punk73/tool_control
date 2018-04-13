@@ -15,4 +15,9 @@ class Part_detail extends Model
     public function part(){
     	return $this->belongsTo('App\Part');
     }
+
+    public function pck31 (){
+    	//get summary of pck31 where part no = $part_no and date untill $date
+    	
+    }
 }

@@ -12,7 +12,8 @@ use App\Supplier;
 use App\ToolPart;
 use App\Tool;
 use App\Forcast;
-use App\tool_detail;
+use App\Tool_detail;
+use App\Part_detail;
 use App\Api\V1\Controllers\ToolPartController;
 use App\Api\V1\Controllers\Pck31Controller;
 use App\Api\V1\Controllers\ForecastController;
@@ -143,7 +144,7 @@ class DataController extends Controller
 		return $toolpart;
 	}
 
-	public function indexBackUp(Request $request){
+	public function indexBackUpOld(Request $request){
 		//we need to specify trans_date as default parameter
 
 		
@@ -172,7 +173,7 @@ class DataController extends Controller
 		return $tool;
 	}
 
-	public function index (Request $request){
+	public function indexBackUp(Request $request){
 		
 		if (isset($request->trans_date) && $request->trans_date != '') {
 			$trans_date = $request->trans_date;
@@ -255,8 +256,8 @@ class DataController extends Controller
 		->has('parts') // yang ada di table toolpart;
 		->get()
 		->each(function($tool){
+			//get total shoot based on part delivery
 			$highest_total_shoot = 0;
-			
 			foreach ($tool->parts as $key => $part) {
 				//cek pivot nya, apakah independent atau tidak
 				if ($part->pivot->is_independent == '0') {
@@ -310,6 +311,161 @@ class DataController extends Controller
 		});
 
 		return $tools;
+	}
+
+	public function index(Request $request){
+		$dataController = $this;
+
+		if (isset($request->trans_date) && $request->trans_date != '') {
+			$trans_date = $request->trans_date;
+		}else{
+			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
+		}
+
+		//get all data that exist on pivot table
+		$tools = Tool::select([
+			'id',
+			'no',
+			'name',
+			'no_of_tooling',
+			'start_value',
+			'guarantee_shoot',
+			'delivery_date',
+			'supplier_id',
+		])
+		->has('parts') // yang ada di table toolpart;
+		->with([ //get total shoot dari table tool_details
+
+			'getHighestTotalShoot' => function ($highest_total_shoot) use ($trans_date){
+				$highest_total_shoot->where('trans_date', '=', $trans_date );
+			},
+
+			'parts.getHighestTotalDelivery' => function ($highest_total_delivery) use ($trans_date){
+				$highest_total_delivery->where('trans_date', '=', $trans_date );
+			},
+
+			'parts' => function ($part){
+				// $part->where('parts.id', 76); //jalan ! bisa buat query yg paling gede first value nya
+				$part->select([
+					'parts.id',
+					'no',
+					'name',
+					'supplier_id',
+					'model',
+					'first_value',
+					'date_of_first_value',
+				]) ; //->whereHas biggest total part
+			},
+
+			'parts.details' => function ($part_detail) use ($trans_date) {
+				// $detail->select(DB::raw('select max ')) //select max total delivery
+				$part_detail->select([
+					'id',
+					'part_id',
+					'total_delivery',
+					'total_qty',
+					'trans_date',
+				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
+
+				if (isset($trans_date) && $trans_date != null ) {
+					$part_detail = $part_detail->where('trans_date', '=', $trans_date );
+				}
+			}, 
+
+			'details' => function ($tool_detail) use ($trans_date) { //
+				$tool_detail->select([
+					'id',
+					'tool_id',
+					'total_shoot',
+					'guarantee_after_forecast',
+					'balance_shoot',
+					'trans_date'
+				])->orderBy('total_shoot', 'desc'); //should always return one result based on trans_date
+				
+				if (isset($trans_date) && $trans_date != null ) {
+					$tool_detail = $tool_detail->where('trans_date', '=', $trans_date );
+				}
+			},
+
+			'getHighestTotalShoot' => function ($highest_total_shoot) use ($trans_date){
+				if (isset($trans_date)) {
+					$highest_total_shoot->where('trans_date', '=', $trans_date );
+				}
+			},
+
+			'supplier:id,name,code'
+
+		])->paginate();
+
+		$tools->each(function($tool) use ($dataController, $request, $trans_date ) {
+			//cek apakah sudah ada total shoot pada table tool_details
+			if ( $tool->getHighestTotalShoot == null ) {
+				//get part dengan total delivery terbesar dengan trans date yang sama dengan data tool_details.trans_date
+
+				$highest_total_shoot = 0;
+				//perulangan parts
+				foreach ($tool->parts as $key => $part) {
+					//cek apakah ada total_delivery pada table part_details (with specific trans_date)
+					if ( $part->getHighestTotalDelivery == null  ) {
+						//import data from pck31
+						$pck31 = $dataController->pck31($request);
+						// $part->pck31 = $pck31;
+						
+						//insert this data to part_details
+						$part_detail = new Part_detail;
+						$part_detail->part_id = $part->id;
+						$part_detail->total_delivery = $pck31->total_qty;
+						$part_detail->total_qty = 0;//$part->id;
+						$part_detail->trans_date = $trans_date;
+						$part_detail->save();
+					}
+
+					//get highest total shoot based on part_details.total_delivery / toolpart.cavity
+					if ($part->pivot->is_independent == '0') {
+						//get salah satu
+						$part->is_independent = 0;
+						$part->cavity = (int) $part->pivot->cavity;
+						
+
+						$detail_total_delivery = 0;
+						foreach ($part->details as $key => $detail ) {
+							//get highest $detail->total_delivery
+							if ($detail_total_delivery < $detail->total_delivery ) {
+								$detail_total_delivery = $detail->total_delivery;
+							}
+						}
+						$part->highest_total_delivery = $detail_total_delivery;
+						//setting total shoot for tool
+						if ($highest_total_shoot < ($detail_total_delivery / $part->cavity) ) {
+							$highest_total_shoot = ($detail_total_delivery / $part->cavity); 
+						}
+
+					}else{
+						//get semua tapi di summary dulu
+						$part->is_independent = 1;
+					}
+				}
+
+				//insert into table tool_details.total_shoot
+				//insert ke table tool_detail
+				$toolDetail = new tool_detail;
+				$toolDetail->tool_id = $tool->id;
+				$toolDetail->total_shoot = ceil( (int) $highest_total_shoot );
+				$toolDetail->balance_shoot = ceil( ( $tool->guarantee_shoot - $highest_total_shoot ) );
+				$toolDetail->trans_date = $trans_date; //we need to find or get the forecast first;
+				$toolDetail->guarantee_after_forecast = 0; //we need to find or get the forecast first;
+				$toolDetail->save();
+				//setup so that we can get total shot directly
+				$tool->getHighestTotalShoot = $toolDetail;
+
+			}
+
+
+			
+		});
+
+		return $tools;
+
 	}
 
 
