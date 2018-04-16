@@ -511,11 +511,12 @@ class DataController extends Controller
 		])
 		->paginate();
 
-		$tools->each(function($tool) use ($dataController, $trans_date, $request) {
+		$tools->each(function($tool, $key) use ($dataController, $trans_date, $request) {
+
 			$tool->partWithHighestTotalDelivery(); //get highestTotalDelivery in part_details //set part in 
 			
 			//has Has highest total delivery in part_details ?
-			if ( $tool->part == null ) { //if don't have
+			if ( $tool->part->detail == null ) { //if don't have
 				// $tool->result = 'tool part == null';
 				foreach ($tool->parts as $key => $part) {
 					//setting paramter
@@ -533,17 +534,63 @@ class DataController extends Controller
 						$part_detail->total_qty = 0;//$part->id;
 						$part_detail->trans_date = $trans_date;
 						$part_detail->save();
+
+						//benerin total_delivery nya. karena tool.part.detail masih kosong.
+						$tool->part->total_delivery += $part->pck31->total_qty;
 					}
 				}
 
-				$tool->partWithHighestTotalDelivery();
+				// $tool->partWithHighestTotalDelivery();
 			}
 
 			if ($tool->detail == null ) {
-				
+				$total_delivery = $tool->part->total_delivery;
+				$is_suffix_number = (int) $tool->part->pivot->is_independent;
+				if ($is_suffix_number == 1) {
+					
+					
+				} else {
+					//ceil = pembulatan ke atas
+					$total_shoot = ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+					//save to tool_details
+					$toolDetail = new Tool_detail;
+					$toolDetail->tool_id  = $tool->id;
+					$toolDetail->total_shoot = $total_shoot;
+					$toolDetail->trans_date = $trans_date;
+					$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot-$tool->highest_total_shoot));
+					$toolDetail->guarantee_after_forecast = 0; //we need to find or get the forecast first;
+					$toolDetail->save();
+
+					//set tool details //it's still not working
+
+					//it's still can't be done here
+					/*if ($tool->detail == null) {
+						# code...
+						$tool->detail = $toolDetail;
+					}*/
+
+				}
 			}
+			
+		});
 
+		return $tools;
+	}
 
+	public function test(Request $request){
+		$trans_date = date('Y-m-d');
+
+		$tools = Tool::has('parts')
+		// ->where('id', 6)
+		->with([
+			// 'detail'
+		])
+		->get();
+
+		$tools->each(function($tool, $key){
+			//$tool->partWithHighestTotalDelivery();
+			$tool->detail = 'teguh';
+		
 		});
 
 		return $tools;
