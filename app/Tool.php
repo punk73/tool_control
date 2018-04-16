@@ -15,7 +15,7 @@ class Tool extends Model
     use SoftDeletes;
     
     protected $dates = ['deleted_at'];
-    protected $hidden = ['is_deleted'];
+    protected $hidden = ['is_deleted', 'deleted_at', 'created_at', 'updated_at'];
     
     protected $casts = [ 
         'start_value' => 'integer', 
@@ -33,6 +33,41 @@ class Tool extends Model
         ->withPivot('cavity', 'is_independent');
     }
 
+    public function partWithHighestTotalDelivery($trans_date = null){
+        if (is_null($trans_date)) {
+            $trans_date = date('Y-m-d');
+        }
+
+        $parts = $this->parts;
+
+        $highest_total_delivery = 0;
+
+        foreach ($parts as $key => $part) {
+            $part->detail;
+            
+            $total_delivery = $part->first_value;
+
+            if (isset( $part->detail->total_delivery )) {
+                $total_delivery += $part->detail->total_delivery;     
+            }
+
+            if ($highest_total_delivery < $total_delivery ) {
+               $highest_total_delivery = $total_delivery;
+               
+               $part->total_delivery = $highest_total_delivery;
+
+               $result = $part;
+            }   
+
+        }
+
+        if (!isset($result)) {
+            $result = null;
+        }
+
+        $this->part = $result;
+    }
+        
     public function toolpart(){
         $id = $this->id;
 
@@ -66,11 +101,21 @@ class Tool extends Model
     	return $this->hasMany('App\Tool_detail');
     }
 
+    public function detail($trans_date = null){ //get all detail
+        if (is_null($trans_date)) {
+            $trans_date = date('Y-m-d');
+        }
+
+        return $this->hasOne('App\Tool_detail')
+        ->where('trans_date', $trans_date )
+        ->orderBy('total_shoot', 'desc');
+    }
+
     public function getHighestTotalShoot(){
         return $this->hasOne('App\Tool_detail')->orderBy('total_shoot', 'desc');
     }
  
-    public function detail($tool_id, $trans_date = null){ //get detail with specific trans date
+    public function detailBackUp($tool_id, $trans_date = null){ //get detail with specific trans date
         if (!isset($tool_id)) {
             return false;
         }

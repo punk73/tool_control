@@ -313,7 +313,7 @@ class DataController extends Controller
 		return $tools;
 	}
 
-	public function index(Request $request){
+	public function index2(Request $request){
 		$dataController = $this;
 
 		if (isset($request->trans_date) && $request->trans_date != '') {
@@ -444,6 +444,11 @@ class DataController extends Controller
 						//get semua tapi di summary dulu
 						$part->is_independent = 1;
 					}
+
+					// //get forecast
+					// $request->part_no = $part->no;
+					// $part->forecast = $dataController->forecast($request);
+
 				}
 
 				//insert into table tool_details.total_shoot
@@ -460,15 +465,88 @@ class DataController extends Controller
 
 			}
 
-
-			
 		});
 
 		return $tools;
-
 	}
 
+	public function index(Request $request){
+		$dataController = $this;
+
+		if (isset($request->trans_date) && $request->trans_date != '') {
+			$trans_date = $request->trans_date;
+		}else{
+			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
+		}
+
+		$tools = Tool::has('parts')
+		// ->where('id', 6 )
+		->with([
+			// 'parts', ///sudah dihandle partWithHighestTotalDelivery
+			
+			'parts.details' => function ($part_detail) use ($trans_date) {
+				// $detail->select(DB::raw('select max ')) //select max total delivery
+				$part_detail->select([
+					'id',
+					'part_id',
+					'total_delivery',
+					'total_qty',
+					'trans_date',
+				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
+
+				if (isset($trans_date) && $trans_date != null ) {
+					$part_detail = $part_detail->where('trans_date', '=', $trans_date );
+				}
+			}, ///sudah dihandle partWithHighestTotalDelivery
+			
+			// 'details',  ///sudah dihandle getHighestTotalShoot
+			
+			'detail' => function ($detail) use ($trans_date){
+				if (isset($trans_date)) {
+					$detail->where('trans_date', '=', $trans_date );
+				}
+			},// -->get highest total shoot in tool_details;
+
+			'supplier' // -->get supplier
+		])
+		->paginate();
+
+		$tools->each(function($tool) use ($dataController, $trans_date, $request) {
+			$tool->partWithHighestTotalDelivery(); //get highestTotalDelivery in part_details //set part in 
+			
+			//has Has highest total delivery in part_details ?
+			if ( $tool->part == null ) { //if don't have
+				// $tool->result = 'tool part == null';
+				foreach ($tool->parts as $key => $part) {
+					//setting paramter
+					$request->part_no = $part->no;
+					$request->input_date = $trans_date;
+
+					$part->pck31 = $dataController->pck31($request);
+
+					if ($part->pck31 != null ) {
+						# code...
+						//save result into part details
+						$part_detail = new Part_detail;
+						$part_detail->part_id = $part->id;
+						$part_detail->total_delivery = $part->pck31->total_qty;
+						$part_detail->total_qty = 0;//$part->id;
+						$part_detail->trans_date = $trans_date;
+						$part_detail->save();
+					}
+				}
+
+				$tool->partWithHighestTotalDelivery();
+			}
+
+			if ($tool->detail == null ) {
+				
+			}
 
 
+		});
+
+		return $tools;
+	}
 
 }

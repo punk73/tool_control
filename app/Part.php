@@ -13,7 +13,7 @@ class Part extends Model
 	use SoftDeletes;
 
 	protected $dates = ['deleted_at'];
-	protected $hidden = ['is_deleted'];
+    protected $hidden = ['is_deleted', 'created_at', 'updated_at'];
 
     protected $casts = [
         'first_value' => 'integer',
@@ -40,7 +40,18 @@ class Part extends Model
         return $this->hasMany('App\Part_detail');
     }
 
-    public function detail(){
+    public function detail($trans_date = null){
+        if (is_null($trans_date)) {
+            $trans_date = date('Y-m-d');
+        }
+
+        return $this->hasOne('App\Part_detail')
+        ->where('trans_date', $trans_date )
+        ->orderBy('total_delivery', 'desc'); //menurun
+
+    }
+
+    public function detailBackup(){
         $id = $this->id;
         $part_detail = Part_detail::select([
             'total_delivery',
