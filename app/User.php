@@ -15,6 +15,8 @@ class User extends Authenticatable
      *
      * @var array
      */
+    protected $casts = ['access_level' => 'integer'];
+
     protected $fillable = [
         'name', 'email', 'password','supplier_id','access_level'
     ];
