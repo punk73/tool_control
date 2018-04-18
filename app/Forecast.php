@@ -14,6 +14,7 @@ class Forecast extends Model
         'month3' => 'integer',
         'month4' => 'integer',
         'month5' => 'integer',
+        'total' => 'integer',
 
     ];
 }

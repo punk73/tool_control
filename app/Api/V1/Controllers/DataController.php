@@ -505,8 +505,17 @@ class DataController extends Controller
 			// 'details',  ///sudah dihandle getHighestTotalShoot
 			
 			'detail' => function ($detail) use ($trans_date){
+				$detail->select([
+					'id',
+					'tool_id',
+					'total_shoot',
+					'guarantee_after_forecast',
+					'balance_shoot',
+					'trans_date',
+				]);
+
 				if (isset($trans_date)) {
-					$detail->where('trans_date', '=', $trans_date );
+					$detail = $detail->where('trans_date', '=', $trans_date );
 				}
 			},// -->get highest total shoot in tool_details;
 
@@ -551,21 +560,28 @@ class DataController extends Controller
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
 				//ceil = pembulatan ke atas
-				$total_shoot = ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+				$total_shoot = $tool->start_value + ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
 				//save to tool_details
 				$toolDetail = new Tool_detail;
 				$toolDetail->tool_id  = $tool->id;
 				$toolDetail->total_shoot = $total_shoot;
 				$toolDetail->trans_date = $trans_date;
-				$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $tool->highest_total_shoot));
-				$toolDetail->guarantee_after_forecast = 0; //we need to find or get the forecast first;
+				$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot ));
+
+				if ($tool->forecast->total == 0) {
+					$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
+				}
+
+				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6) ; //we need to find or get the forecast first;
+				
+				// $toolDetail->guarantee_after_forecast = 0;
 				$toolDetail->save();
 
 				//setup total shoot di tool
 				$tool->total_shoot = $total_shoot;
 				$tool->trans_date = $trans_date;
-				$tool->balance_shoot = $balance_shoot;
-				$tool->guarantee_after_forecast = $guarantee_after_forecast;
+				$tool->balance_shoot = $toolDetail->balance_shoot;
+				$tool->guarantee_after_forecast = $toolDetail->guarantee_after_forecast;
 
 			}else {
 				//setup nya ambil dari detail
@@ -575,8 +591,6 @@ class DataController extends Controller
 				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
 			}
 
-
-			
 		});
 
 		return $tools;

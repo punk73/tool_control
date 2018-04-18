@@ -42,49 +42,38 @@ class Tool extends Model
         }
 
         $trans_date = Carbon::createFromFormat('Y-m-d', $trans_date )->format('m/d/Y');
-        // return $trans_date;
-            $trans_date = Forecast::select(DB::raw('convert(datetime,TransDate)'))
-            ->where('TransDate', '!=', 'EOF')
-            // ->where('SuppCode', '=', $SuppCode )
-            // ->where('PartNo', '=', $PartNo )
-            ->where('transDate', '<', $trans_date )
-            // ->where('PartNo', 'like', $PartNo .'%' )
-            ->orderByRaw('convert(datetime,TransDate) desc')
-            ->first();
-            
-            return $trans_date;
-
-            $trans_date = $trans_date->toArray();
-
-            $trans_date =  $trans_date['TransDate'];
-  
-        if (is_null($trans_date)) { //cek hasil query
-            return '';    
-        }
-
 
         $forecast = Forecast::select(DB::raw('
             TransDate as trans_date,
-            RT,
             SuppCode,
             PartNo,
             DTQTY30 as month1,
             DTQTY31 as month2,
             DTQTY32 as month3,
             DTQTY33 as month4,
-            DTQTY34 as month5
+            DTQTY34 as month5,
+            (cast(ltrim(DTQTY30) as int) + cast(ltrim(DTQTY31) as int) + cast(ltrim(DTQTY32) as int) + cast(ltrim(DTQTY33) as int) + cast(ltrim(DTQTY34) as int))  as total
         '))->where('RT', '=', 'D' );
 
-        $forecast = $forecast->where('TransDate','=', $trans_date);    
+        $forecast = $forecast->whereRaw('rtrim(PartNo) = ?', [ trim($PartNo) ] )
+        ->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ?)', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
 
-        // $forecast = $forecast->where('PartNo','like', $PartNo . '%');
-        $forecast = $forecast->where('PartNo','=', $PartNo);
+        $forecast = $forecast->first();
 
-        $forecast = $forecast->get();
-
-        $forecast->each(function($model){
-            $model->total = ($model->month1+$model->month2+$model->month3+$model->month4+$model->month5);
-        });
+        if (empty( $forecast) ) {
+            //harus diset as object karena eloquent return nya object
+            $forecast = (object) [
+                'trans_date' => $trans_date,
+                'SuppCode' => null,
+                'PartNo' => $PartNo,
+                'month1' => 0,
+                'month2' => 0,
+                'month3' => 0,
+                'month4' => 0,
+                'month5' => 0,
+                'total' => 0
+            ];
+        }
 
         return $forecast;
     }
@@ -97,7 +86,14 @@ class Tool extends Model
         $parts = $this->parts;
 
         $highest_total_delivery = 0;
-
+        // setting variable for not suffix number
+            $month1 = 0;
+            $month2 = 0;
+            $month3 = 0;
+            $month4 = 0;
+            $month5 = 0;
+            $total = 0;
+        //
         foreach ($parts as $key => $part) {
             $part->detail; //get part_details
                 
@@ -116,14 +112,22 @@ class Tool extends Model
                 }
             }else {
                 $highest_total_delivery += $total_delivery;
-                //if it's not suffix number, get the forecast, then summary 
+                //if it's not suffix number, get the forecast, then summary
+                $forecast = $this->forecast($part->no, $trans_date );
+                $month1 += $forecast->month1;
+                $month2 += $forecast->month2;
+                $month3 += $forecast->month3;
+                $month4 += $forecast->month4;
+                $month5 += $forecast->month5;
+                $total += $forecast->total;
+
+                $PartNo = $forecast->PartNo;
             }
 
             $part->total_delivery = $highest_total_delivery;
             //ceil itu pembulatan ke atas. in case hasilnya 12.5 maka akan jadi 13;
             $part->total_shoot_based_on_part = ceil($highest_total_delivery / (int) $part->pivot->cavity) ;
             $result = $part;
-        
         }
 
         if (!isset($result)) {
@@ -131,7 +135,20 @@ class Tool extends Model
         }
 
         if ($part->pivot->is_independent == "0" || $part->pivot->is_independent == 0 ) {
-            $this->forecast_result = $this->forecast($part->no , $trans_date ); 
+            $this->forecast = $this->forecast($part->no , $trans_date ); 
+        }else {
+            //setup forecast untuk yang suffix number
+            $this->forecast = [
+                'trans_date' => $trans_date,
+                'SuppCode' => null,
+                'PartNo' => $PartNo,
+                'month1' => $month1,
+                'month2' => $month2,
+                'month3' => $month3,
+                'month4' => $month4,
+                'month5' => $month5,
+                'total' => $total
+            ];
         }
 
         $this->part = $result;
