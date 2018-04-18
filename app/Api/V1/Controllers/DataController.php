@@ -473,6 +473,9 @@ class DataController extends Controller
 	public function index(Request $request){
 		$dataController = $this;
 
+		
+
+
 		if (isset($request->trans_date) && $request->trans_date != '') {
 			$trans_date = $request->trans_date;
 		}else{
@@ -546,31 +549,33 @@ class DataController extends Controller
 			if ($tool->detail == null ) {
 				$total_delivery = $tool->part->total_delivery;
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
-				if ($is_suffix_number == 1) {
-					
-					
-				} else {
-					//ceil = pembulatan ke atas
-					$total_shoot = ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
-					//save to tool_details
-					$toolDetail = new Tool_detail;
-					$toolDetail->tool_id  = $tool->id;
-					$toolDetail->total_shoot = $total_shoot;
-					$toolDetail->trans_date = $trans_date;
-					$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot-$tool->highest_total_shoot));
-					$toolDetail->guarantee_after_forecast = 0; //we need to find or get the forecast first;
-					$toolDetail->save();
+				
+				//ceil = pembulatan ke atas
+				$total_shoot = ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+				//save to tool_details
+				$toolDetail = new Tool_detail;
+				$toolDetail->tool_id  = $tool->id;
+				$toolDetail->total_shoot = $total_shoot;
+				$toolDetail->trans_date = $trans_date;
+				$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $tool->highest_total_shoot));
+				$toolDetail->guarantee_after_forecast = 0; //we need to find or get the forecast first;
+				$toolDetail->save();
 
-					//set tool details //it's still not working
+				//setup total shoot di tool
+				$tool->total_shoot = $total_shoot;
+				$tool->trans_date = $trans_date;
+				$tool->balance_shoot = $balance_shoot;
+				$tool->guarantee_after_forecast = $guarantee_after_forecast;
 
-					//it's still can't be done here
-					/*if ($tool->detail == null) {
-						# code...
-						$tool->detail = $toolDetail;
-					}*/
-
-				}
+			}else {
+				//setup nya ambil dari detail
+				$tool->total_shoot = $tool->detail->total_shoot;
+				$tool->trans_date = $tool->detail->trans_date;
+				$tool->balance_shoot = $tool->detail->balance_shoot;
+				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
 			}
+
+
 			
 		});
 
