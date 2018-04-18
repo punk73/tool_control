@@ -117,7 +117,7 @@ class ToolPart extends Model
     	return $this;
     }
 
-    public function tool($id){
+    public function toolBackup($id){
         return $this->tool = Tool::select([
             'no',
             'name',
@@ -129,7 +129,7 @@ class ToolPart extends Model
         ])->find($id);
     }
 
-    public function part($id){
+    public function partBackup($id){
         return $this->part = Part::select([
             'no',
             'name',
@@ -139,5 +139,9 @@ class ToolPart extends Model
             // 'total_delivery',
             // 'total_qty',
         ])->find($id);
+    }
+
+    public function tool(){
+        return $this->hasOne('App\Tool', 'id', 'tool_id'); //model, id of foreign key, id of it's model primarry key
     }
 }

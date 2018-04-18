@@ -13,7 +13,7 @@ class Part extends Model
 	use SoftDeletes;
 
 	protected $dates = ['deleted_at'];
-	protected $hidden = ['is_deleted'];
+    protected $hidden = ['is_deleted', 'created_at', 'updated_at'];
 
     protected $casts = [
         'first_value' => 'integer',
@@ -27,13 +27,31 @@ class Part extends Model
 
     public function tools()
     {
-        return $this->belongsToMany('App\Tool', 'tool_part')->withTimestamps()->withPivot('cavity');
+        return $this->belongsToMany('App\Tool', 'tool_part')
+        ->withTimestamps()
+        ->withPivot('cavity', 'is_independent');
     }
 
     public function pck31(){
+
     }
 
-    public function detail(){
+    public function details(){
+        return $this->hasMany('App\Part_detail');
+    }
+
+    public function detail($trans_date = null){
+        if (is_null($trans_date)) {
+            $trans_date = date('Y-m-d');
+        }
+
+        return $this->hasOne('App\Part_detail')
+        ->where('trans_date', $trans_date )
+        ->orderBy('total_delivery', 'desc'); //menurun
+
+    }
+
+    public function detailBackup(){
         $id = $this->id;
         $part_detail = Part_detail::select([
             'total_delivery',
@@ -44,7 +62,11 @@ class Part extends Model
         ->first();
         
         return $part_detail;
+    }
 
+    public function getHighestTotalDelivery(){
+        //dengan order by, maka yang pertama muncul adalah yang paling gede
+        return $this->hasOne('App\Part_detail')->orderBy('total_delivery', 'desc');
     }
 
     protected static function boot() { //cascade on soft delete
