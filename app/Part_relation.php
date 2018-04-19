@@ -12,13 +12,15 @@ class Part_relation extends Model
     ];
 
     public function parentPart(){
-    	$parent_id = $this->parent_part_id;
+    	/*$parent_id = $this->parent_part_id;
     	$part = Part::select([
     		'name',
     		'no'
     	])->find($parent_id);
     	$this->parent_part = $part;
-    	return $this;
+    	return $this;*/
+        return $this->hasOne('App\Part', 'id', 'parent_part_id');
+        //$this->hasOne('model', 'foreign_key', 'localkey');
     }
 
     public function childrenPart(){
@@ -29,6 +31,10 @@ class Part_relation extends Model
     	])->find($children_id);
     	$this->children_part = $part;
     	return $this;
+    }
+
+    public function part(){
+        return $this->belongsTo('App\Part');
     }
 
 

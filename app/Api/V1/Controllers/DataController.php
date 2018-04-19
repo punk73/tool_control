@@ -473,9 +473,6 @@ class DataController extends Controller
 	public function index(Request $request){
 		$dataController = $this;
 
-		
-
-
 		if (isset($request->trans_date) && $request->trans_date != '') {
 			$trans_date = $request->trans_date;
 		}else{

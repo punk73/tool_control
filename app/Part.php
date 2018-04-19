@@ -12,8 +12,8 @@ class Part extends Model
 {	
 	use SoftDeletes;
 
-	protected $dates = ['deleted_at'];
-    protected $hidden = ['is_deleted', 'created_at', 'updated_at'];
+	// protected $dates = ['deleted_at'];
+    protected $hidden = ['is_deleted', 'created_at', 'updated_at', 'deleted_at'];
 
     protected $casts = [
         'first_value' => 'integer',
@@ -33,7 +33,10 @@ class Part extends Model
     }
 
     public function pck31(){
+    }
 
+    public function parentPart(){
+        return $this->hasMany('App\Part_relation', 'children_part_id' )->with('parentPart');
     }
 
     public function details(){

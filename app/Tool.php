@@ -33,6 +33,7 @@ class Tool extends Model
     {
         return $this->belongsToMany('App\Part', 'tool_part')
         ->withTimestamps()
+        ->with('parentPart')
         ->withPivot('cavity', 'is_independent');
     }
 
@@ -114,14 +115,16 @@ class Tool extends Model
                 $highest_total_delivery += $total_delivery;
                 //if it's not suffix number, get the forecast, then summary
                 $forecast = $this->forecast($part->no, $trans_date );
-                $month1 += $forecast->month1;
-                $month2 += $forecast->month2;
-                $month3 += $forecast->month3;
-                $month4 += $forecast->month4;
-                $month5 += $forecast->month5;
-                $total += $forecast->total;
-
-                $PartNo = $forecast->PartNo;
+                if ($forecast != null) {
+                    # code...
+                    $month1 += $forecast->month1;
+                    $month2 += $forecast->month2;
+                    $month3 += $forecast->month3;
+                    $month4 += $forecast->month4;
+                    $month5 += $forecast->month5;
+                    $total += $forecast->total;
+                    $PartNo = $forecast->PartNo;
+                }
             }
 
             $part->total_delivery = $highest_total_delivery;
@@ -130,15 +133,18 @@ class Tool extends Model
             $result = $part;
         }
 
+        //what happen if result == null ??
         if (!isset($result)) {
             $result = null;
         }
 
-        if ($part->pivot->is_independent == "0" || $part->pivot->is_independent == 0 ) {
-            $this->forecast = $this->forecast($part->no , $trans_date ); 
+        //get forecast
+
+        if ($result->pivot->is_independent == "0" || $result->pivot->is_independent == 0 ) {
+            $this->forecast = $this->forecast($result->no , $trans_date ); 
         }else {
             //setup forecast untuk yang suffix number
-            $this->forecast = [
+            $this->forecast = (object) [
                 'trans_date' => $trans_date,
                 'SuppCode' => null,
                 'PartNo' => $PartNo,
