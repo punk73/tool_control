@@ -26,7 +26,7 @@ class DataController extends Controller
 	use Helpers;
 
 
-	public function pck31(Request $request){
+	public function pck31BackUp(Request $request){
 		$pck31 = new Pck31Controller;
 		// $request->part_no = '1SS355VM9';
 		$pck31 = $pck31->index($request);
@@ -36,6 +36,10 @@ class DataController extends Controller
 		} else{
 		 	return null;
 		}
+	}
+
+	public function pck31(Request $request){
+		
 	}
 
 	public function forecast(Request $request){
@@ -520,6 +524,7 @@ class DataController extends Controller
 		])
 		->paginate();
 
+		//perulangan dari tools 
 		$tools->each(function($tool, $key) use ($dataController, $trans_date, $request) {
 
 			$tool->partWithHighestTotalDelivery(); //get highestTotalDelivery in part_details //set part in 
@@ -528,30 +533,74 @@ class DataController extends Controller
 			if ( $tool->part->detail == null ) { //if don't have
 				// $tool->result = 'tool part == null';
 				foreach ($tool->parts as $key => $part) {
-					//setting paramter
-					$request->part_no = $part->no;
-					$request->input_date = $trans_date;
+					/* Important Noted
+						harus cek dulu apakah disini ada yang semi part atau tidak, karena kalau semi part seharusnya yang dicari di pck31 itu semi part nya. bkn part nya;
+					*/
 
-					$part->pck31 = $dataController->pck31($request);
+					//kalau bukan semi part, maka langsung isi
+					//bkn semi part = parentPart == empty
+					if ( $part->parentParts->isEmpty() ) {
+						//setting paramter, untuk non semi part;
+						$request->part_no = $part->no;
+						$request->input_date = $trans_date;
 
-					if ($part->pck31 != null ) {
-						# code...
-						//save result into part details
-						$part_detail = new Part_detail;
-						$part_detail->part_id = $part->id;
-						$part_detail->total_delivery = $part->pck31->total_qty;
-						$part_detail->total_qty = 0;//$part->id;
-						$part_detail->trans_date = $trans_date;
-						$part_detail->save();
+						// $part->is_semi_part = false;
+						//cek apakah part->detail sudah diinput sebelumnya;
+						//kalau sudah, tidak usah input lagi;
+						if ($part->detail == null ) {
+							# code...
+							$part->pck31 = $dataController->pck31($request);
+							if ($part->pck31 != null ) {
+								# code...
+								//save result into part details
+								$part_detail = new Part_detail;
+								$part_detail->part_id = $part->id;
+								$part_detail->total_delivery = $part->pck31->total_qty;
+								$part_detail->total_qty = 0;//$part->id;
+								$part_detail->trans_date = $trans_date;
+								$part_detail->save();
 
-						//benerin total_delivery nya. karena tool.part.detail masih kosong.
-						$tool->part->total_delivery += $part->pck31->total_qty;
+								//benerin total_delivery nya. karena tool.part.detail masih kosong.
+								$tool->part->total_delivery += $part->pck31->total_qty;
+							}
+						}
+						
+					}else {
+						//semi part disini;
+						//setup value awal untuk save ke detail
+						foreach ($part->parentParts as $key => $parentPart ) {
+							$parentPart->parentPart->detail; //get the detail
+
+							if ($parentPart->parentPart->detail == null ) {
+								$parentPartPartNo = $parentPart->parentPart->no;
+								$request->part_no = $parentPartPartNo;
+								$request->input_date = $trans_date;
+								// $part->is_semi_part = false;
+								$part->pck31 = $dataController->pck31($request);
+								if ($part->pck31 != null ) {
+									# code...
+									//save part into part details
+									$part_detail = new Part_detail;
+									
+									// important note!
+									//save detail ke part id, bkn ke parentpart.id karena memang kita cuman ngambil data sj di parent, store nya tetep di child part;
+
+									$part_detail->part_id = $part->id;
+									$part_detail->total_delivery = $part->pck31->total_qty;
+									$part_detail->total_qty = 0;//$part->id;
+									$part_detail->trans_date = $trans_date;
+									$part_detail->save();
+									//benerin total_delivery nya. karena tool.part.detail masih kosong.
+									$tool->part->total_delivery += $part->pck31->total_qty;
+								}
+							}
+							
+						}
 					}
 				}
-
-				// $tool->partWithHighestTotalDelivery();
 			}
 
+			//has total shoot in tool details
 			if ($tool->detail == null ) {
 				$total_delivery = $tool->part->total_delivery;
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
@@ -586,30 +635,22 @@ class DataController extends Controller
 				$tool->trans_date = $tool->detail->trans_date;
 				$tool->balance_shoot = $tool->detail->balance_shoot;
 				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
-			}
 
+				// if ($tool->detail->total_shoot != ) {
+				// 	# code...
+				// }
+			}
 		});
 
 		return $tools;
 	}
 
 	public function test(Request $request){
-		$trans_date = date('Y-m-d');
-
-		$tools = Tool::has('parts')
-		// ->where('id', 6)
-		->with([
-			// 'detail'
-		])
-		->get();
-
-		$tools->each(function($tool, $key){
-			//$tool->partWithHighestTotalDelivery();
-			$tool->detail = 'teguh';
-		
+		$Tool = Tool::where('id', 48 )->get() ->each(function($model){
+			$model->partWithHighestTotalDelivery();
 		});
 
-		return $tools;
+		return $Tool;
 	}
 
 }

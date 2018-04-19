@@ -35,7 +35,7 @@ class Part extends Model
     public function pck31(){
     }
 
-    public function parentPart(){
+    public function parentParts(){
         return $this->hasMany('App\Part_relation', 'children_part_id' )->with('parentPart');
     }
 
