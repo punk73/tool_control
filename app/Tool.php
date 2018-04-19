@@ -33,6 +33,7 @@ class Tool extends Model
     {
         return $this->belongsToMany('App\Part', 'tool_part')
         ->withTimestamps()
+        ->with('parentParts')
         ->withPivot('cavity', 'is_independent');
     }
 
@@ -87,12 +88,12 @@ class Tool extends Model
 
         $highest_total_delivery = 0;
         // setting variable for not suffix number
-            $month1 = 0;
-            $month2 = 0;
-            $month3 = 0;
-            $month4 = 0;
-            $month5 = 0;
-            $total = 0;
+        $month1 = 0;
+        $month2 = 0;
+        $month3 = 0;
+        $month4 = 0;
+        $month5 = 0;
+        $total = 0;
         //
         foreach ($parts as $key => $part) {
             $part->detail; //get part_details
@@ -114,14 +115,16 @@ class Tool extends Model
                 $highest_total_delivery += $total_delivery;
                 //if it's not suffix number, get the forecast, then summary
                 $forecast = $this->forecast($part->no, $trans_date );
-                $month1 += $forecast->month1;
-                $month2 += $forecast->month2;
-                $month3 += $forecast->month3;
-                $month4 += $forecast->month4;
-                $month5 += $forecast->month5;
-                $total += $forecast->total;
-
-                $PartNo = $forecast->PartNo;
+                if ($forecast != null) {
+                    # code...
+                    $month1 += $forecast->month1;
+                    $month2 += $forecast->month2;
+                    $month3 += $forecast->month3;
+                    $month4 += $forecast->month4;
+                    $month5 += $forecast->month5;
+                    $total += $forecast->total;
+                    $PartNo = $forecast->PartNo;
+                }
             }
 
             $part->total_delivery = $highest_total_delivery;
@@ -130,15 +133,65 @@ class Tool extends Model
             $result = $part;
         }
 
+        //what happen if result == null ??
         if (!isset($result)) {
             $result = null;
         }
 
-        if ($part->pivot->is_independent == "0" || $part->pivot->is_independent == 0 ) {
-            $this->forecast = $this->forecast($part->no , $trans_date ); 
+
+        //get forecast
+        if ($result->pivot->is_independent == "0" || $result->pivot->is_independent == 0 ) {
+            $this->forecast = $this->forecast($result->no , $trans_date );
+
+            /*important note: $this->forecast method return value with suppCode null if the forecast not found;*/
+
+            //jika forecast kosong dan parent part tersedia, maka isi forecast based parent part, bukan children part;
+            if ($this->forecast->SuppCode == null && $result->parentParts->isNotEmpty() ) {
+                // setting variable for not suffix number      
+
+                $month1 = 0;
+                $month2 = 0;
+                $month3 = 0;
+                $month4 = 0;
+                $month5 = 0;
+                $total = 0;
+                $SuppCode = '';
+                $PartNo = '';
+
+                //$this->hasil = $result->parentParts[0]->parentPart;
+                //
+                foreach ($result->parentParts as $key => $parentPart ) {
+                    //get by the part model method, not the result the model gave.
+                    $parentPartPartNo = $parentPart->parentPart->no;
+                    $forecast = $this->forecast($parentPartPartNo , $trans_date );
+                    if ($forecast != null) {
+                        # disini, bisa saja user tidak setting suppCode yg sama. which is seharusnya tidak bisa. kita bisa maksimalkan untuk cek apakah data yang diinput sudah sesuai atau tidak;
+                        $month1 += $forecast->month1;
+                        $month2 += $forecast->month2;
+                        $month3 += $forecast->month3;
+                        $month4 += $forecast->month4;
+                        $month5 += $forecast->month5;
+                        $total += $forecast->total;
+                        $PartNo += $forecast->PartNo;
+                        $SuppCode += $forecast->SuppCode;
+                    }
+                }    
+
+                $this->forecast = (object) [
+                    'trans_date' => $trans_date,
+                    'SuppCode' => $SuppCode,
+                    'PartNo' => $PartNo,
+                    'month1' => $month1,
+                    'month2' => $month2,
+                    'month3' => $month3,
+                    'month4' => $month4,
+                    'month5' => $month5,
+                    'total' => $total
+                ];
+            }
         }else {
             //setup forecast untuk yang suffix number
-            $this->forecast = [
+            $this->forecast = (object) [
                 'trans_date' => $trans_date,
                 'SuppCode' => null,
                 'PartNo' => $PartNo,
@@ -150,6 +203,7 @@ class Tool extends Model
                 'total' => $total
             ];
         }
+
 
         $this->part = $result;
     }
