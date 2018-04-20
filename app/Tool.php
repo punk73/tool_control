@@ -29,8 +29,7 @@ class Tool extends Model
     	return $this->belongsTo('App\Supplier');
     }
 
-    public function parts()
-    {
+    public function parts(){
         return $this->belongsToMany('App\Part', 'tool_part')
         ->withTimestamps()
         ->with('parentParts')
@@ -102,6 +101,72 @@ class Tool extends Model
 
             if (isset( $part->detail->total_delivery )) {
                 $total_delivery += $part->detail->total_delivery;     
+            } else {
+                //jika detail tidak ada detail, isi disini;
+                if ( $part->parentParts->isEmpty() ) {
+
+                    // $part->is_semi_part = false;
+                    //cek apakah part->detail sudah diinput sebelumnya;
+                    //kalau sudah, tidak usah input lagi;
+                    if ($part->detail == null ) {
+                        //pck31 method get expect partno, startDate, finish date as paramter;
+                        $part->pck31 = $part->pck31($part->no, $part->date_of_first_value, $trans_date);
+                        if ($part->pck31 != null ) {
+                            # code...
+                            //save result into part details
+                            $part_detail = new Part_detail;
+                            $part_detail->part_id = $part->id;
+                            $part_detail->total_delivery = $part->pck31->total_qty;
+                            $part_detail->total_qty = 0;//$part->id;
+                            $part_detail->trans_date = $trans_date;
+                            $part_detail->save();
+
+                            //benerin total_delivery nya. karena tool.part.detail masih kosong.
+                            //$tool->part->total_delivery += $part->pck31->total_qty;
+                        }
+                    }
+                    
+                }else {
+                    //semi part disini;
+                    //setup value awal untuk save ke detail
+                    if ($part->detail == null) { //kalau kosong, ga kosong mah gausah diisi,
+                        //kalau ga kosong artinya user salah isi parameter. 
+
+                        /*
+                            kalau ga kosong, itu artinya data part "yg katanya" semi part itu bkn benar2 semi part karena datanya ada di pck31. sedangkan semi part itu pasti tidak ada di pck31, dan tidak ada di forecast;
+                        */
+                            
+                        foreach ($part->parentParts as $key => $parentPart ) {
+                            $parentPart->parentPart->detail; //get the detail
+
+                            if ($parentPart->parentPart->detail == null ) {
+                                //pck31 method get expect partno, startDate, finish date as paramter;
+                                $part->pck31 = $part->pck31($parentPart->parentPart->no, $parentPart->parentPart->date_of_first_value, $trans_date  );
+                                if ($part->pck31 != null ) {
+                                    # code...
+                                    //save part into part details
+                                    $part_detail = new Part_detail;
+                                    
+                                    // important note!
+                                    //save detail ke part id, bkn ke parentpart.id karena memang kita cuman ngambil data sj di parent, store nya tetep di child part;
+                                    $part_detail->part_id = $part->id;
+                                    $part_detail->total_delivery = $part->pck31->total_qty;
+                                    $part_detail->total_qty = 0;//$part->id;
+                                    $part_detail->trans_date = $trans_date;
+                                    $part_detail->save();
+                                    //benerin total_delivery nya. karena tool.part.detail masih kosong.
+                                    //$tool->part->total_delivery += $part->pck31->total_qty;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //get detail lagi, siapa tau sudah diset dr pck31;
+                $part->detail;
+                if (isset( $part->detail->total_delivery )) {
+                    $total_delivery += $part->detail->total_delivery;     
+                } 
             }
 
             /*there will be a serious problem if user set two part suffix and not suffix in the same tools. the result of this logic will not apply properly*/
@@ -137,7 +202,6 @@ class Tool extends Model
         if (!isset($result)) {
             $result = null;
         }
-
 
         //get forecast
         if ($result->pivot->is_independent == "0" || $result->pivot->is_independent == 0 ) {
@@ -203,7 +267,6 @@ class Tool extends Model
                 'total' => $total
             ];
         }
-
 
         $this->part = $result;
     }

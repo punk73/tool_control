@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\ToolPart;
 use App\Pck31;
 use App\Part_detail;
+use Carbon\Carbon;
+use DB;
 
 class Part extends Model
 {	
@@ -25,14 +27,43 @@ class Part extends Model
     	return $this->belongsTo('App\Supplier');
     }
 
+    public function pck31($partNo=null, $startDate = null, $finishDate = null){
+        //setup startDate
+        if (is_null($startDate)) {
+            $startDate = '1990/01/01';
+        }else{
+            $startDate = Carbon::parse($startDate)->format('Y/m/d');
+        }
+
+        //setup finish date
+        if (is_null($finishDate)) {
+            $finishDate = date('Y/m/d');
+        }else{
+            $finishDate = Carbon::parse($finishDate)->format('Y/m/d');
+        }
+
+        // return $startDate;
+        if (is_null($partNo)) {
+            $partNo = $this->no;                  
+        }
+
+        $pck31 = Pck31::select(
+            DB::raw('month,part_no,sum(qty) as total_qty')
+        )
+        ->where('part_no', $partNo )
+        ->whereBetween('input_date', [$startDate, $finishDate ] )
+        ->groupBy('part_no')
+        ->groupBy('month');
+
+        $pck31= $pck31->first();
+        return $pck31;
+    }
+
     public function tools()
     {
         return $this->belongsToMany('App\Tool', 'tool_part')
         ->withTimestamps()
         ->withPivot('cavity', 'is_independent');
-    }
-
-    public function pck31(){
     }
 
     public function parentParts(){
