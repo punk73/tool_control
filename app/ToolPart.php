@@ -26,7 +26,7 @@ class ToolPart extends Model
         'is_independent' => 'integer'
     ];
 
-    public function tools($id = null, $PartNo = null ){
+    /*public function tools($id = null, $PartNo = null ){
     	if (!isset($id)) {
     		// return [];
             $id = $this->tool_id;
@@ -139,9 +139,15 @@ class ToolPart extends Model
             // 'total_delivery',
             // 'total_qty',
         ])->find($id);
-    }
+    }*/
+
+
 
     public function tool(){
         return $this->hasOne('App\Tool', 'id', 'tool_id'); //model, id of foreign key, id of it's model primarry key
+    }
+
+    public function part(){
+        return $this->hasOne('App\Part', 'id', 'part_id'); //model, foreign key, local_id;
     }
 }

@@ -89,7 +89,7 @@ class DataController extends Controller
 
 	}
 
-	public function indexCurrentBackUp(Request $request){
+	/*public function indexCurrentBackUp(Request $request){
 		$toolpart = ToolPart::select();
 		$message = 'OK';
 		// $tgl = "04/03/2018";
@@ -476,7 +476,7 @@ class DataController extends Controller
 		});
 
 		return $tools;
-	}
+	}*/
 
 	public function index(Request $request){
 		$dataController = $this;
@@ -651,7 +651,7 @@ class DataController extends Controller
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
 				//ceil = pembulatan ke atas
-				$total_shoot = $tool->start_value + ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+				$total_shoot = /**/ ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
 				//save to tool_details
 				$toolDetail = new Tool_detail;
 				$toolDetail->tool_id  = $tool->id;
@@ -683,9 +683,11 @@ class DataController extends Controller
 
 				if ($tool->detail->total_shoot != ( $tool->part->total_shoot_based_on_part + $tool->start_value ) ) {
 					//do the updating over here;
-					$toolDetail = Tool_detail::where('tool_id', $tool->detail->id)->first();
+					$toolDetail = Tool_detail::where('tool_id', $tool->detail->tool_id )
+					->where('trans_date', $trans_date)
+					->first();
+					$tool->is_same = $toolDetail ;
 					if (!empty( $toolDetail ) ) {
-						
 						$total_shoot = ( $tool->part->total_shoot_based_on_part + $tool->start_value );
 
 						$toolDetail->total_shoot = $total_shoot;

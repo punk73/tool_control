@@ -62,7 +62,7 @@ class Part extends Model
     public function tools()
     {
         return $this->belongsToMany('App\Tool', 'tool_part')
-        ->withTimestamps()
+        // ->withTimestamps()
         ->withPivot('cavity', 'is_independent');
     }
 
