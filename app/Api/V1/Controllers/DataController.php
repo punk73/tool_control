@@ -727,11 +727,7 @@ class DataController extends Controller
 					'total_qty',
 					'trans_date',
 				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
-
-				
 			}, ///sudah dihandle partWithHighestTotalDelivery
-			
-			// 'details',  ///sudah dihandle getHighestTotalShoot
 			
 			'details' => function ($detail) {
 				$detail->select([
