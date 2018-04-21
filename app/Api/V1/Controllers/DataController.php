@@ -700,12 +700,79 @@ class DataController extends Controller
 					
 				}
 			}
-
-
-
 		});
 
 		return $tools;
+	}
+
+	public function show(Request $request, $tool_id){
+		$dataController = $this;
+
+		/*if (isset($request->trans_date) && $request->trans_date != '') {
+			$trans_date = $request->trans_date;
+		}else{
+			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
+		}*/
+
+		$tools = tool::has('parts')
+		->with([
+			// 'parts', ///sudah dihandle partWithHighestTotalDelivery
+			
+			'parts.details' => function ($part_detail) {
+				// $detail->select(DB::raw('select max ')) //select max total delivery
+				$part_detail->select([
+					'id',
+					'part_id',
+					'total_delivery',
+					'total_qty',
+					'trans_date',
+				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
+			}, ///sudah dihandle partWithHighestTotalDelivery
+			
+			'details' => function ($detail) {
+				$detail->select([
+					'id',
+					'tool_id',
+					'total_shoot',
+					'guarantee_after_forecast',
+					'balance_shoot',
+					'trans_date',
+				]);				
+			},// -->get highest total shoot in tool_details;
+
+			'supplier' => function ($supplier){
+				$supplier->select([
+					"id",
+		            "name",
+		            "code",
+				]);
+			} // -->get supplier
+		])->where('id', $tool_id )->first() ; //it's always return one value;
+
+		$tools->each(function($tool){
+			foreach ($tool->parts as $key => $part) {
+				//get pck31, this method takes partno, startdate, finish date
+				foreach ($part->details as $key => $detail) {
+					# code...
+					if ($detail == null) {
+						continue;
+					}
+
+					$detail->pck31 = $part->pck31($part->no, $part->date_of_first_value, $detail->trans_date );
+
+					//forecast take two paramter, partno & trans_date
+					$detail->forecast = $tool->forecast($part->no ,$detail->trans_date);
+				}
+			}
+		});
+
+		return [
+			'_meta' => [
+				'message' => 'OK' 
+			],
+			'data' =>$tools
+		];
+
 	}
 
 	public function test(Request $request){
