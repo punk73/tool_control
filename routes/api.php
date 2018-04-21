@@ -63,6 +63,10 @@ $api->version('v1', function (Router $api) {
             $api->get('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@show' );
         });
 
+        $api->group(['prefix' => 'tool_details'], function(Router $api){
+            $api->get('/', 'App\\Api\\V1\\Controllers\\ToolDetailController@index' );
+        });
+
         $api->group(['prefix' => 'toolparts'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
             $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
