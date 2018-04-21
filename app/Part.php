@@ -62,7 +62,7 @@ class Part extends Model
     public function tools()
     {
         return $this->belongsToMany('App\Tool', 'tool_part')
-        ->withTimestamps()
+        // ->withTimestamps()
         ->withPivot('cavity', 'is_independent');
     }
 
@@ -78,6 +78,8 @@ class Part extends Model
         if (is_null($trans_date)) {
             $trans_date = date('Y-m-d');
         }
+
+        // return $trans_date;
 
         return $this->hasOne('App\Part_detail')
         ->where('trans_date', $trans_date )

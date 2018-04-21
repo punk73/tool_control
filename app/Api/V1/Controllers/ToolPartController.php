@@ -13,7 +13,14 @@ class ToolPartController extends Controller
     //
 
     public function index(Request $request){
-    	$toolPart = ToolPart::select();
+    	$toolPart = ToolPart::with([
+            'tool' => function ($tool){
+                $tool->select(['id','no', 'name']);
+            }, 
+            'part' => function ($part){
+                $part->select(['id','no','name']);
+            }
+        ]);
     	
     	$message = 'OK';
 
@@ -61,13 +68,6 @@ class ToolPartController extends Controller
 
     	$toolPart = $toolPart->get();
 
-        if (!$toolPart->isEmpty() ) {
-            $toolPart->each(function($model){
-                $model->tools();
-                $model->parts();
-            });
-        }
-
     	return [
     		'_meta' => [
     			'message' => $message,
@@ -79,30 +79,31 @@ class ToolPartController extends Controller
 
     public function store(Request $request){
     	
-        $toolPart = new ToolPart;
+        /*$toolPart = new ToolPart;
     	$toolPart->part_id = $request->part_id;
     	$toolPart->tool_id = $request->tool_id;
         $toolPart->is_independent = $request->is_independent;
-        $toolPart->cavity = $request->cavity;
+        $toolPart->cavity = $request->cavity;*/
 
-
+        $tool = Tool::find($request->tool_id);
+        
     	$message = 'OK';
 
     	try {
-    		$toolPart->save();
+            $tool->parts()->attach($request->part_id , [
+                'is_independent' => $request->is_independent,
+                'cavity' => $request->cavity
+            ]);
     	} catch (Exception $e) {
     		$message = $e;
     	}
-            
-        $toolPart->tool = $toolPart->tool($toolPart->tool_id);
-        $toolPart->part = $toolPart->part($toolPart->part_id);
 
     	return [
     		'_meta' => [
     			'message' => $message,
-    			'count' => count($toolPart)
+    			'count' => count($tool)
     		],
-    		'data' => $toolPart
+    		'data' => $tool
     	];
     }
 

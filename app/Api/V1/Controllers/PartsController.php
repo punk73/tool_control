@@ -17,10 +17,40 @@ class PartsController extends Controller
     //
     public function index(Request $request){
 
-    	$part = Part::where('is_deleted', 0);
+    	$part = Part::where('is_deleted', 0)->with([
+            'details',
+            'tools',
+            'supplier'
+        ]);
         
         if (isset($request->no) && $request->no != "" ) {
-            $part = $part->where('no', '=', $request->no );
+            $part = $part->where('no', 'like', $request->no . '%' );
+        }
+
+        if (isset($request->name) && $request->name != "" ) {
+            $part = $part->where('name', 'like', $request->name . '%' );
+        }
+
+        if (isset($request->model) && $request->model != "" ) {
+            $part = $part->where('model', 'like', $request->model . '%' );
+        }
+
+        if (isset($request->first_value) && $request->first_value != "" ) {
+            $part = $part->where('first_value', 'like', $request->first_value . '%' );
+        }
+
+        if (isset($request->date_of_first_value) && $request->date_of_first_value != "" ) {
+            $part = $part->where('date_of_first_value', 'like', $request->date_of_first_value . '%' );
+        }
+
+        if (isset($request->supplier_id) && $request->supplier_id != "" ) {
+            $part = $part->where('supplier_id', '=', $request->supplier_id );
+        }
+
+        if (isset($request->supplier_name) && $request->supplier_name != "" ) {
+            $part = $part->whereHas('supplier', function($query) use ($request){
+                $query->where('name', 'like', $request->supplier_name . '%' );
+            });
         }
 
         $message = "OK";
@@ -31,22 +61,8 @@ class PartsController extends Controller
             $message = $e;
         }
 
-        if ( !$part->isEmpty() ) {
-            $part->each(function($model){
-                $model->tools;
-                $model->detail = $model->detail();
-            });
-        }        
-
         return $part;
 
-        /*return [
-            "_meta" => [
-                "count" => count($part),
-                "message" => $message
-            ],
-            "data" => $part
-        ];*/
     }
 
     public function all(Request $request){
