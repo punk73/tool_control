@@ -16,8 +16,8 @@ class UserSeeder extends Seeder
         $supplier = Supplier::all();
 
         foreach ($supplier as $key => $value) {
-        	$username = $value['code'];
-        	$password = $value['code'] . '&&';
+        	$username = trim( $value['code'] );
+        	$password = $username . '&&';
         	$supplier_id = $value['id'];
 
        		$user = new User;
@@ -25,8 +25,17 @@ class UserSeeder extends Seeder
        		$user->email = $username . '@email.com';
        		$user->password = $password;
        		$user->supplier_id = $supplier_id;
-       		$user->save();
-       		
+       		$user->save();	
         }
+
+        //admin user
+        $user = new User;
+        $user->name = 'punk71';
+        $user->email = 'teguh@gmail.com';
+        $user->password = '123456';
+        $user->access_level = 1;
+        $user->supplier_id = null;
+        $user->save();
+          
     }
 }

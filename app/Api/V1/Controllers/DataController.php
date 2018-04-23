@@ -526,6 +526,8 @@ class DataController extends Controller
 
 			'detail.machine' => function($machine) use ($trans_date){
 				$machine->select([
+					//'id', //id harus selalu ikut
+					'tool_id', //tool id harus selalu ikut, karena jadi foreign key
 					'counter',
 					'tanggal',
 					'note',

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Dingo\Api\Routing\Helpers;
 use App\Tool;
-
+use JWTAuth;
 
 
 class ToolsController extends Controller
@@ -18,8 +18,20 @@ class ToolsController extends Controller
     	$tool = Tool::where('is_deleted', '=' , 0);
         $message = 'OK';
 
-    	if (isset($request->supplier_id) && $request->supplier_id != "" ) {
-    		$tool = $tool->where('supplier_id', '=', $request->supplier_id );
+        if (isset($request->supplier_id) && $request->supplier_id != "" && $request->supplier_id != null ) {
+
+            /*for auth purpose but we can handle it by simply always sending supplier id as paramter;*/
+
+    		// $currentUser = JWTAuth::parseToken()->authenticate();
+            // return $currentUser;
+            /*if (  $currentUser->access_level == 3 && $currentUser->supplier_id != null && ($currentUser->supplier_id == $request->supplier_id) ) {
+                $tool = $tool->where('supplier_id', '=', $request->supplier_id );
+            }else {
+                $tool = $tool->where('supplier_id', '=', $request->supplier_id );
+            }*/
+
+            $tool = $tool->where('supplier_id', '=', $request->supplier_id );
+
     	}
 
         if (isset($request->no) && $request->no != "" ) {
