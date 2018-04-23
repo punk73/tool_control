@@ -16,4 +16,8 @@ class Tool_detail extends Model
         'balance_shoot' => 'integer', 
         'guarantee_after_forecast' => 'float'
     ];
+
+    public function machine(){
+    	return $this->hasOne('App\Machine', 'tool_id', 'tool_id')->orderBy('tanggal', 'desc'); //model, foreignkey, localkey
+    } 
 }
