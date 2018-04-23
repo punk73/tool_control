@@ -524,6 +524,16 @@ class DataController extends Controller
 				}
 			},// -->get highest total shoot in tool_details;
 
+			'detail.machine' => function($machine) use ($trans_date){
+				$machine->select([
+					'counter',
+					'tanggal',
+					'note',
+				])
+				->where('tanggal', '<=', $trans_date );
+				// ->orderBy('tanggal', 'desc')
+			},
+
 			'supplier' // -->get supplier
 		]);
 
