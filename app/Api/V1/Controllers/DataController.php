@@ -522,6 +522,8 @@ class DataController extends Controller
 				if (isset($trans_date)) {
 					$detail = $detail->where('trans_date', '=', $trans_date );
 				}
+
+				
 			},// -->get highest total shoot in tool_details;
 
 			'detail.machine' => function($machine) use ($trans_date){
@@ -578,6 +580,17 @@ class DataController extends Controller
 					$query->where('cavity', '=', $request->cavity );
 				});
 			}
+
+			//show the danger tools
+			if (isset($request->danger) && $request->danger == true) {
+				$tools = $tools->whereHas('details', function ($query){
+					$query->where('balance_shoot', '<=', 0);
+				});
+			}
+
+			//show the warning tools;
+			
+		
 		/*End Of Searching Code*/
 
 
