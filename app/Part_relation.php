@@ -23,7 +23,7 @@ class Part_relation extends Model
         //$this->hasOne('model', 'foreign_key', 'localkey');
     }
 
-    public function childrenPart(){
+    /*public function childrenPart(){
     	$children_id = $this->children_part_id;
     	$part = Part::select([
     		'name',
@@ -31,6 +31,10 @@ class Part_relation extends Model
     	])->find($children_id);
     	$this->children_part = $part;
     	return $this;
+    }*/
+
+    public function childrenPart(){
+        return $this->hasOne('App\Part', 'id', 'children_part_id');
     }
 
     public function part(){

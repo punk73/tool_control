@@ -94,6 +94,31 @@ class ToolPartController extends Controller
                 'is_independent' => $request->is_independent,
                 'cavity' => $request->cavity
             ]);
+
+            $toolpart = ToolPart::with([
+                'tool' => function($query){
+                    $query->select([
+                        'id',
+                        'no'
+                    ]);
+                },
+
+                'part' => function($query){
+                    $query->select([
+                        'id',
+                        'no'
+                    ]);
+                },
+
+            ])->where('tool_id', $tool->id )
+            ->where('part_id', $request->part_id )
+            ->first();
+
+            if (!empty($toolpart)) {
+
+                $tool = $toolpart;
+            }
+
     	} catch (Exception $e) {
     		$message = $e;
     	}
@@ -108,10 +133,16 @@ class ToolPartController extends Controller
     }
 
     public function delete($id){
+
+
     	$toolPart = ToolPart::find($id);
-    	if (!empty($toolPart)) {
-    		$toolPart->delete();
-    		$message = 'OK';
+    	
+        if (!empty($toolPart)) {
+    		$toolPart->forceDelete(); 
+
+            //softdelete causing some problem with relation
+    		/* so instead using delete() we using forceDelete to permanently delete toolpart instead of using soft delete*/
+            $message = 'OK';
     	}else{
     		$message = 'Data not found';
     	}

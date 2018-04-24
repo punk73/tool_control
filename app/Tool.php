@@ -135,7 +135,9 @@ class Tool extends Model
                         /*
                             kalau ga kosong, itu artinya data part "yg katanya" semi part itu bkn benar2 semi part karena datanya ada di pck31. sedangkan semi part itu pasti tidak ada di pck31, dan tidak ada di forecast;
                         */
-                            
+
+                        $tmpTotalDelivery = 0;
+
                         foreach ($part->parentParts as $key => $parentPart ) {
                             $parentPart->parentPart->detail; //get the detail
 
@@ -144,21 +146,34 @@ class Tool extends Model
                                 $part->pck31 = $part->pck31($parentPart->parentPart->no, $parentPart->parentPart->date_of_first_value, $trans_date  );
                                 if ($part->pck31 != null ) {
                                     # code...
-                                    //save part into part details
-                                    $part_detail = new Part_detail;
-                                    
-                                    // important note!
-                                    //save detail ke part id, bkn ke parentpart.id karena memang kita cuman ngambil data sj di parent, store nya tetep di child part;
-                                    $part_detail->part_id = $part->id;
-                                    $part_detail->total_delivery = $part->pck31->total_qty;
-                                    $part_detail->total_qty = 0;//$part->id;
-                                    $part_detail->trans_date = $trans_date;
-                                    $part_detail->save();
-                                    //benerin total_delivery nya. karena tool.part.detail masih kosong.
-                                    //$tool->part->total_delivery += $part->pck31->total_qty;
+                                    $tmpTotalDelivery += $part->pck31->total_qty;
                                 }
+                            }else {
+                                
+                                $part->pck31 = (object) [ 
+                                    'total_delivery' => $parentPart->parentPart->detail->total_delivery 
+                                ];
+                                //kalau detail ada, total delivery diambil dari details
+                                $tmpTotalDelivery += $parentPart->parentPart->detail->total_delivery;
                             }
                         }
+
+                        //$part->aku_semi_part = true;
+
+                        //if $tmpTotalDelivery masih 0 artinya di parent part, tidak ada pck31;
+                        if ($tmpTotalDelivery != 0) {
+                            //save part into part details
+                            $part_detail = new Part_detail;
+                            // important note!
+                            //save detail ke part id, bkn ke parentpart.id karena memang kita cuman ngambil data sj di parent, store nya tetep di child part;
+                            $part_detail->part_id = $part->id;
+                            $part_detail->total_delivery = $tmpTotalDelivery;//$part->pck31->total_qty;
+                            $part_detail->total_qty = 0;//$part->id;
+                            $part_detail->trans_date = $trans_date;
+                            $part_detail->save();
+                        }
+
+
                     }
                 }
 
@@ -291,10 +306,6 @@ class Tool extends Model
         return $this->hasMany('App\Machine');
     }
 
-    public function machine(){
-        // $machine = Machine::select()
-    }
-
     public function hasToolPart(){
         $toolpart = ToolPart::where('tool_id', '=', $this->id )->get();
         return !$toolpart->isEmpty(); //return true if it's not empty
@@ -316,35 +327,6 @@ class Tool extends Model
 
     public function getHighestTotalShoot(){
         return $this->hasOne('App\Tool_detail')->orderBy('total_shoot', 'desc');
-    }
- 
-    public function detailBackUp($tool_id, $trans_date = null){ //get detail with specific trans date
-        if (!isset($tool_id)) {
-            return false;
-        }
-
-        if (!isset($trans_date)) {
-            return false;
-        }
-
-        $Tool_detail = Tool_detail::select([
-            'tool_id',
-            'total_shoot',
-            'guarantee_after_forecast',
-            'balance_shoot',
-            'trans_date',
-        ])
-        ->where('trans_date', '=', $trans_date )
-        ->where('tool_id', '=', $tool_id )
-        ->first();
-        
-        if ( is_null( $Tool_detail ) ) {
-            # isi dulu // hitung melalui pck31
-            $this->detail = null;
-        }else {
-            //langsung return
-            $this->detail = $Tool_detail;
-        }
     }
 
     protected static function boot() { //cascade on soft delete

@@ -9,13 +9,27 @@ use App\Part_relation;
 class PartRelationController extends Controller
 {
     public function index(Request $request){
-    	$part_relation = Part_relation::all();
+    	$part_relation = Part_relation::with([
+            
+            'parentPart' =>  function($query){
+                $query->select([
+                    'id',
+                    'no',
+                    'name',
+                ]);
+            },
+
+            'childrenPart' =>  function($query){
+                $query->select([
+                    'id',
+                    'no',
+                    'name',
+                ]);
+            }
+        ])->get();
     	$message = 'OK';
     	
-        $part_relation->each(function($model){
-            $model->parentPart();
-            $model->childrenPart();
-        });
+        /**/
 
     	return [
             "_meta" => [
@@ -34,6 +48,11 @@ class PartRelationController extends Controller
     	try {
     		$part_relation->save();
     		$message = 'OK';
+
+            $part_relation->parentPart;
+            $part_relation->childrenPart;
+
+
     	} catch (Exception $e) {
     		$message = $e;
     	}
