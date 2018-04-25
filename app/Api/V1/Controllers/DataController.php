@@ -194,8 +194,11 @@ class DataController extends Controller
 
 			//show the danger tools
 			if (isset($request->danger) && $request->danger == true) {
-				$tools = $tools->whereHas('details', function ($query){
-					$query->where('balance_shoot', '<=', 0);
+				$tools = $tools->whereHas('details', function ($query) use ($request){
+					$query
+					//dengan begini danger hanya show yg hari ini merah saja;
+					->where('trans_date', $request->trans_date )
+					->where('balance_shoot', '<=', 0);
 				});
 			}
 
