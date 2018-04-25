@@ -24,7 +24,9 @@ class ToolDetailController extends Controller
             });    		
     	}    	
 
-    	$tools = $tools->paginate();
+    	$tools = $tools
+        ->orderBy('trans_date', 'desc')
+        ->paginate();
 
     	return $tools;
 
