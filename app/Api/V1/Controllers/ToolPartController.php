@@ -90,6 +90,7 @@ class ToolPartController extends Controller
     	$message = 'OK';
 
     	try {
+            
             $tool->parts()->attach($request->part_id , [
                 'is_independent' => $request->is_independent,
                 'cavity' => $request->cavity
@@ -153,7 +154,29 @@ class ToolPartController extends Controller
     			'count' => count($toolPart)
     		]
     	];
+    }
 
+    public function update (Request $request, $id){
+        $toolpart = ToolPart::find($id);
+
+        if (!empty($toolpart)) {
+            $toolpart->is_independent = $request->is_independent;
+            $message = 'OK';
+
+            try {
+                $toolpart->save();        
+            } catch (Exception $e) {
+                $message = $e;
+            }
+        }
+
+        return [
+            '_meta' => [
+                'message' => $message,
+                'count' => count($toolpart)
+            ],
+            'data' => $toolpart
+        ];
     }
 
 }
