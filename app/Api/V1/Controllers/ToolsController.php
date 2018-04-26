@@ -71,15 +71,16 @@ class ToolsController extends Controller
 
         $message = 'OK';
 
-        $tool = $tool->get();
+        $tool = $tool->paginate();
         
-        return [
+        return $tool;
+        /*return [
             '_meta' =>[
                 'count' => count($tool),
                 'message' => $message
             ],
             'data' => $tool
-        ];
+        ];*/
     }
 
     public function show($id){

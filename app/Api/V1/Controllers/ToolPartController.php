@@ -15,10 +15,18 @@ class ToolPartController extends Controller
     public function index(Request $request){
     	$toolPart = ToolPart::with([
             'tool' => function ($tool){
-                $tool->select(['id','no', 'name']);
+                $tool->select(['id','no', 'name','supplier_id']);
             }, 
             'part' => function ($part){
                 $part->select(['id','no','name']);
+            },
+
+            'tool.supplier' => function ($supplier) {
+                $supplier->select([
+                    'id',
+                    'name',
+                    'code',
+                ]);
             }
         ]);
     
@@ -26,37 +34,26 @@ class ToolPartController extends Controller
 
         //searching tool number first
         if ($request->tool_number && $request->tool_number !='' ) {
-            $tool = Tool::select(['id', 'no'])->where('no', 'like', $request->tool_number . '%' )->get();
-            //jika tidak kosong baru filter
-            if(!$tool->isEmpty()){
-                $id = [];
-                foreach ($tool as $key => $value) {
-                    $id[] = $value['id'];        
-                }
-
-                $toolPart = $toolPart->whereIn('tool_id', $id );
-            }
-
+            $toolPart = $toolPart->whereHas('tool', function ($query) use ($request){
+                $query->where('no', 'like', $request->tool_number . '%' );
+            });
         }
 
         if ($request->part_number && $request->part_number != '' ) {
-            $part = Part::select(['id', 'no'])->where('no', 'like', $request->part_number . '%' )->get();
-            //jika tidak kosong baru filter
-            if(!$part->isEmpty()){
-                $id = [];
-                foreach ($part as $key => $value) {
-                    $id[] = $value['id'];        
-                }
+            $toolPart = $toolPart->whereHas('part', function($query) use($request){
+                $query->where('no', 'like', $request->part_number  . '%');
+            });
+        }
 
-                $toolPart = $toolPart->whereIn('part_id', $id );
-            }
+        if ($request->supplier_name && $request->supplier_name != '' ) {
+            $toolPart = $toolPart->whereHas('tool.supplier', function($query) use($request){
+                $query->where('name', 'like', $request->supplier_name  . '%' );
+            });
         }
 
         if ($request->cavity) {
             $toolPart = $toolPart->where('cavity', '=', $request->cavity );
         }
-
-        //        
 
     	if ($request->tool_id) {
     		$toolPart = $toolPart->where('tool_id', '=', $request->tool_id );
@@ -66,15 +63,17 @@ class ToolPartController extends Controller
     		$toolPart = $toolPart->where('part_id', '=', $request->part_id );
     	}    	
 
-    	$toolPart = $toolPart->get();
+    	$toolPart = $toolPart->paginate();
 
-    	return [
+        return $toolPart;
+
+    	/*return [
     		'_meta' => [
     			'message' => $message,
     			'count' => count($toolPart)
     		],
     		'data' => $toolPart
-    	];
+    	];*/
     }
 
     public function store(Request $request){

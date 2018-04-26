@@ -83,18 +83,20 @@ class PartsController extends Controller
        $message = "OK";
 
        try {
-           $part = $part->get();
+           $part = $part->paginate();
        } catch (Exception $e) {
            $message = $e;
        }
 
-       return [
+       return $part;
+
+        /*return [
             "_meta" => [
                 "count" => count($part),
                 "message" => $message
             ],
             "data" => $part
-        ];
+        ];*/
     }
 
     public function show($id){
