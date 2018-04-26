@@ -353,6 +353,7 @@ class DataController extends Controller
 		$tools = Tool::select(DB::raw('
 			sum(case when balance_shoot < 0 then 1 else 0 end) danger, 
 			sum(case when balance_shoot > 0 then 1 else 0 end) safe,
+			sum(case when guarantee_after_forecast < 0 then 1 else 0 end) warning,
 			tool_details.trans_date
 		'))->leftJoin('tool_details', 'tools.id', '=', 'tool_details.tool_id' )
 		->where('trans_date', $trans_date )
