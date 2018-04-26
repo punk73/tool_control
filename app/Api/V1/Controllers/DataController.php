@@ -74,7 +74,7 @@ class DataController extends Controller
 	
 	}
 
-	public function forecast(Request $request){
+	public function forecast(Request $request){ //sepertinya ini sudah tidak dipakai, karena get forecast ada di tool model
 
 		$forecast = new ForecastController;
 		$forecast = $forecast->index($request);
@@ -343,32 +343,28 @@ class DataController extends Controller
 	}
 
 	public function getCount(Request $request){
-		$trans_date = date('Y-m-d');
+		
+		if (isset($request->trans_date) && $request->trans_date != '') {
+			$trans_date = $request->trans_date;	
+		}else{
+			$trans_date = date('Y-m-d');
+		}
 
-		$tools = Tool::select('id')
-		->whereHas(
-			'details' , function ($query) use ($trans_date){
-				$query->where('trans_date', $trans_date );
-			}
-		)
-		/*->with([
-			'details' => function ($query) use ($trans_date){
-				$query->where('trans_date', $trans_date );
-			}
-		])*/
-		->withCount([
-			'details as danger' => function ($query) use ($trans_date){
-				$query->where('trans_date', $trans_date )->where('balance_shoot', '<=', 0 );
-			},		
+		$tools = Tool::select(DB::raw('
+			sum(case when balance_shoot < 0 then 1 else 0 end) danger, 
+			sum(case when balance_shoot > 0 then 1 else 0 end) safe,
+			tool_details.trans_date
+		'))->leftJoin('tool_details', 'tools.id', '=', 'tool_details.tool_id' )
+		->where('trans_date', $trans_date )
+		->groupBy('trans_date')
+		->first();
 
-			'details as save' => function ($query) use ($trans_date){
-				$query->where('trans_date', $trans_date )
-				->where('balance_shoot', '>', 0 );
-			},
-		]);
-
-		return $tools->get();
-
+		return [
+			'_meta' => [
+				'message' => 'OK' 
+			],
+			'data' =>$tools
+		];
 	}
 
 	public function show(Request $request, $tool_id){

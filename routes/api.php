@@ -77,6 +77,7 @@ $api->version('v1', function (Router $api) {
 
         $api->group(['prefix' => 'datas'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\DataController@index' );
+            $api->get('/count', 'App\\Api\\V1\\Controllers\\DataController@getCount' );
             $api->get('/{tool_id}', 'App\\Api\\V1\\Controllers\\DataController@show' );
 
         });
