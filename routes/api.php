@@ -67,12 +67,15 @@ $api->version('v1', function (Router $api) {
             $api->get('/', 'App\\Api\\V1\\Controllers\\ToolDetailController@index' );
         });
 
+        $api->group(['prefix' => 'part_details'], function(Router $api){
+            $api->get('/', 'App\\Api\\V1\\Controllers\\PartDetailController@index' );
+        });
+
         $api->group(['prefix' => 'toolparts'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
             $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
             $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );
             $api->put('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@update' );
-
         });
 
         $api->group(['prefix' => 'datas'], function(Router $api){

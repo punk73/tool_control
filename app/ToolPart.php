@@ -22,7 +22,7 @@ class ToolPart extends Model
     protected $casts = [
         'part_id' => 'integer',
         'tool_id' => 'integer',
-        'cavity' => 'integer',
+        'cavity' => 'float',
         'is_independent' => 'integer'
     ];
 

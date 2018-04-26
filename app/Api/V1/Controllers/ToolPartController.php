@@ -160,7 +160,11 @@ class ToolPartController extends Controller
         $toolpart = ToolPart::find($id);
 
         if (!empty($toolpart)) {
-            $toolpart->is_independent = $request->is_independent;
+
+            $toolpart->is_independent = (isset($request->is_independent)) ? $request->is_independent : $toolpart->is_independent;
+            
+            $toolpart->cavity = (isset($request->cavity)) ? $request->cavity : $toolpart->cavity;
+
             $message = 'OK';
 
             try {

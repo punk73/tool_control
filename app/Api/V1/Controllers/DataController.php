@@ -25,7 +25,6 @@ class DataController extends Controller
     //helper api
 	use Helpers;
 
-
 	public function pck31BackUp(Request $request){
 		$pck31 = new Pck31Controller;
 		// $request->part_no = '1SS355VM9';
@@ -71,7 +70,6 @@ class DataController extends Controller
 
 		$pck31= $pck31->first();
 		return $pck31;
-	
 	}
 
 	public function forecast(Request $request){ //sepertinya ini sudah tidak dipakai, karena get forecast ada di tool model
@@ -86,7 +84,6 @@ class DataController extends Controller
 				return null;
 			}
 		}
-
 	}
 	
 	public function index(Request $request){
@@ -192,13 +189,34 @@ class DataController extends Controller
 
 			//show the danger tools
 			if (isset($request->danger) && $request->danger == true) {
-				$tools = $tools->whereHas('details', function ($query) use ($request){
+				$tools = $tools->whereHas('details', function ($query) use ($trans_date){
 					$query
 					//dengan begini danger hanya show yg hari ini merah saja;
-					->where('trans_date', $request->trans_date )
+					->where('trans_date', $trans_date )
 					->where('balance_shoot', '<=', 0);
 				});
 			}
+
+			//show the safe tools
+			if (isset($request->safe) && $request->safe == true) {
+				$tools = $tools->whereHas('details', function ($query) use ($trans_date){
+					$query
+					//dengan begini danger hanya show yg hari ini merah saja;
+					->where('trans_date', $trans_date )
+					->where('balance_shoot', '>', 0);
+				});
+			}
+
+			//show the warning tools
+			if (isset($request->warning) && $request->warning == true) {
+				$tools = $tools->whereHas('details', function ($query) use ($trans_date){
+					$query
+					//dengan begini danger hanya show yg hari ini merah saja;
+					->where('trans_date', $trans_date )
+					->where('guarantee_after_forecast', '<=', 0);
+				});
+			}
+
 
 			//show the warning tools;
 			
@@ -368,6 +386,10 @@ class DataController extends Controller
 		];
 	}
 
+	public function deleteDetail(Request $request){
+		
+	}
+
 	public function show(Request $request, $tool_id){
 		$dataController = $this;
 
@@ -435,7 +457,6 @@ class DataController extends Controller
 			],
 			'data' =>$tools
 		];
-
 	}
 
 	public function test(Request $request){
