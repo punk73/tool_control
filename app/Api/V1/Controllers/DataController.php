@@ -133,8 +133,6 @@ class DataController extends Controller
 				if (isset($trans_date)) {
 					$detail = $detail->where('trans_date', '=', $trans_date );
 				}
-
-				
 			},// -->get highest total shoot in tool_details;
 
 			'detail.machine' => function($machine) use ($trans_date){
@@ -342,6 +340,35 @@ class DataController extends Controller
 		});
 
 		return $tools;
+	}
+
+	public function getCount(Request $request){
+		$trans_date = date('Y-m-d');
+
+		$tools = Tool::select('id')
+		->whereHas(
+			'details' , function ($query) use ($trans_date){
+				$query->where('trans_date', $trans_date );
+			}
+		)
+		/*->with([
+			'details' => function ($query) use ($trans_date){
+				$query->where('trans_date', $trans_date );
+			}
+		])*/
+		->withCount([
+			'details as danger' => function ($query) use ($trans_date){
+				$query->where('trans_date', $trans_date )->where('balance_shoot', '<=', 0 );
+			},		
+
+			'details as save' => function ($query) use ($trans_date){
+				$query->where('trans_date', $trans_date )
+				->where('balance_shoot', '>', 0 );
+			},
+		]);
+
+		return $tools->get();
+
 	}
 
 	public function show(Request $request, $tool_id){
