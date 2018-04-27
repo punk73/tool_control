@@ -95,6 +95,9 @@ class DataController extends Controller
 			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
 		}
 
+		
+		$limit = (isset($request->limit)) ? $request->limit : 15 ;
+
 		$tools = Tool::has('parts')
 		// ->where('id', 6 )
 		->with([
@@ -224,7 +227,7 @@ class DataController extends Controller
 		/*End Of Searching Code*/
 
 
-		$tools = $tools->paginate();
+		$tools = $tools->paginate($limit);
 
 		//perulangan dari tools 
 		$tools->each(function($tool, $key) use ($dataController, $trans_date, $request) {
@@ -386,8 +389,145 @@ class DataController extends Controller
 		];
 	}
 
-	public function deleteDetail(Request $request){
+	public function deleteDetails(Request $request){
 		
+		if (isset($request->trans_date) && $request->trans_date != '') {
+			$trans_date = $request->trans_date;
+		}else{
+			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
+		}
+
+		$toolDetails = Tool_detail::where('trans_date', $trans_date )->get();
+		$partDetails = Part_detail::where('trans_date', $trans_date )->get();
+
+		foreach ($toolDetail as $key => $detail) {
+			$detail->delete();
+		}
+
+		foreach ($partDetails as $key => $detail) {
+			$detail->delete();
+		}
+
+	}
+
+	public function fillDetails($trans_date = null){
+		$dataController = $this;
+
+		if (!isset($trans_date) || $trans_date == null) {
+			$trans_date= date('Y-m-d');
+		}
+
+		$tools = Tool::has('parts')
+		->with([
+			// 'parts', ///sudah dihandle partWithHighestTotalDelivery
+			
+			'parts.details' => function ($part_detail) use ($trans_date) {
+				// $detail->select(DB::raw('select max ')) //select max total delivery
+				$part_detail->select([
+					'id',
+					'part_id',
+					'total_delivery',
+					'total_qty',
+					'trans_date',
+				])->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
+
+				if (isset($trans_date) && $trans_date != null ) {
+					$part_detail = $part_detail->where('trans_date', '=', $trans_date );
+				}
+			}, ///sudah dihandle partWithHighestTotalDelivery
+						
+			'detail' => function ($detail) use ($trans_date){
+				$detail->select([
+					'id',
+					'tool_id',
+					'total_shoot',
+					'guarantee_after_forecast',
+					'balance_shoot',
+					'trans_date',
+				]);
+
+				if (isset($trans_date)) {
+					$detail = $detail->where('trans_date', '=', $trans_date );
+				}
+			},// -->get highest total shoot in tool_details;
+
+			'detail.machine' => function($machine) use ($trans_date){
+				$machine->select([
+					//'id', //id harus selalu ikut
+					'tool_id', //tool id harus selalu ikut, karena jadi foreign key
+					'counter',
+					'tanggal',
+					'note',
+				])
+				->where('tanggal', '<=', $trans_date );
+				// ->orderBy('tanggal', 'desc')
+			},
+
+			'supplier' // -->get supplier
+		]);
+
+		$tools = $tools->chunk(200, function($tools) use ($dataController, $trans_date){
+			//perulangan dari tools 
+			$tools->each(function($tool, $key) use ($dataController, $trans_date) {
+
+				$tool->partWithHighestTotalDelivery($trans_date); //get highestTotalDelivery in 
+
+				//has total shoot in tool details
+				if ($tool->detail == null ) {
+					$total_delivery = $tool->part->total_delivery;
+					$is_suffix_number = (int) $tool->part->pivot->is_independent;
+					
+					//ceil = pembulatan ke atas
+					$total_shoot = /**/ ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+					//save to tool_details
+					$toolDetail = new Tool_detail;
+					$toolDetail->tool_id  = $tool->id;
+					$toolDetail->total_shoot = $total_shoot;
+					$toolDetail->trans_date = $trans_date;
+					$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot ));
+
+					if ($tool->forecast->total == 0) {
+						$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
+					}
+
+					$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6) ; //we need to find or get the forecast first;
+					
+					// $toolDetail->guarantee_after_forecast = 0;
+					$toolDetail->save();
+
+					//setup total shoot di tool
+					$tool->total_shoot = $total_shoot;
+					$tool->trans_date = $trans_date;
+					$tool->balance_shoot = $toolDetail->balance_shoot;
+					$tool->guarantee_after_forecast = $toolDetail->guarantee_after_forecast;
+				}else {
+					//setup nya ambil dari detail
+					$tool->total_shoot = $tool->detail->total_shoot;
+					$tool->trans_date = $tool->detail->trans_date;
+					$tool->balance_shoot = $tool->detail->balance_shoot;
+					$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
+
+					if ($tool->detail->total_shoot != ( $tool->part->total_shoot_based_on_part + $tool->start_value ) ) {
+						//do the updating over here;
+						$toolDetail = Tool_detail::where('tool_id', $tool->detail->tool_id )
+						->where('trans_date', $trans_date)
+						->first();
+						$tool->is_same = $toolDetail ;
+						if (!empty( $toolDetail ) ) {
+							$total_shoot = ( $tool->part->total_shoot_based_on_part + $tool->start_value );
+
+							$toolDetail->total_shoot = $total_shoot;
+							$toolDetail->trans_date = $trans_date;
+							$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot ));
+							$toolDetail->save();
+						}
+						
+					}
+				}
+			});	
+		});
+
+		return $tools;
 	}
 
 	public function show(Request $request, $tool_id){
@@ -471,6 +611,5 @@ class DataController extends Controller
 
 		return $tools;
 	}
-
 
 }

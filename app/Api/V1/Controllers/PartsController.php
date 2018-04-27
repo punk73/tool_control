@@ -16,6 +16,7 @@ class PartsController extends Controller
 {
     //
     public function index(Request $request){
+        $limit = (isset($request->limit)) ? $request->limit : 15 ;
 
     	$part = Part::where('is_deleted', 0)->with([
             'details',
@@ -56,7 +57,7 @@ class PartsController extends Controller
         $message = "OK";
 
         try {
-            $part = $part->paginate();
+            $part = $part->paginate($limit);
         } catch (Exception $e) {
             $message = $e;
         }
@@ -66,6 +67,7 @@ class PartsController extends Controller
     }
 
     public function all(Request $request){
+       $limit = (isset($request->limit)) ? $request->limit : 15 ;
        $part = Part::select([
             'id',
             'no',
@@ -83,18 +85,20 @@ class PartsController extends Controller
        $message = "OK";
 
        try {
-           $part = $part->get();
+           $part = $part->paginate($limit);
        } catch (Exception $e) {
            $message = $e;
        }
 
-       return [
+       return $part;
+
+        /*return [
             "_meta" => [
                 "count" => count($part),
                 "message" => $message
             ],
             "data" => $part
-        ];
+        ];*/
     }
 
     public function show($id){

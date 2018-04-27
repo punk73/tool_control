@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+use App\Console\Commands\FillDetails;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -14,6 +16,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        FillDetails::class
     ];
 
     /**
@@ -26,6 +29,14 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+        //make schedule to import part details & tools details so that user can get the data easier.
+        
+
+        $schedule->command('detail:fill')->daily('10:50')
+        ->appendOutputTo(storage_path('logs/fillDetails.log'));
+
+        // $schedule->exec('echo hellow world')->everyMinute();
     }
 
     /**

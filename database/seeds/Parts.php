@@ -75,7 +75,7 @@ class Parts extends Seeder
         	$tool->no = $value['PartNo'];
         	$tool->name = $value['PartName'];
         	$tool->start_value = 0;
-        	$tool->guarantee_shoot = 10000000;
+        	$tool->guarantee_shoot = 1000000;
             $tool->start_value_date = $date_of_first_value;
         	$tool->delivery_date = $date_of_first_value;
         	$tool->supplier_id = $supplier_id;

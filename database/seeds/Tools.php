@@ -11,6 +11,11 @@ class Tools extends Seeder
      *
      * @return void
      */
+
+    /*
+        INI SUDAH TIDAK DIPAKAI, SEEDER TOOL DIGABUNG DENGAN SEEDER PARTS !!!!!
+    */
+
     public function run()
     {
     	$supplier = Supplier::all();
