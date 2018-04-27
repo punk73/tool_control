@@ -14,6 +14,7 @@ class ToolsController extends Controller
     use Helpers;
 
     public function index(Request $request){
+        $limit = (isset($request->limit)) ? $request->limit : 15 ;
 
     	$tool = Tool::where('is_deleted', '=' , 0);
         $message = 'OK';
@@ -39,7 +40,7 @@ class ToolsController extends Controller
             
         }
 
-    	$tool = $tool->paginate();
+    	$tool = $tool->paginate($limit);
 
     	$additional_message = collect(['_meta'=> [
             'message'=>$message,
@@ -51,6 +52,8 @@ class ToolsController extends Controller
     }
 
     public function all(Request $request){
+        $limit = (isset($request->limit)) ? $request->limit : 15 ;
+
         $tool = Tool::select([
             'id',
             'no',
@@ -71,7 +74,7 @@ class ToolsController extends Controller
 
         $message = 'OK';
 
-        $tool = $tool->paginate();
+        $tool = $tool->paginate($limit);
         
         return $tool;
         /*return [

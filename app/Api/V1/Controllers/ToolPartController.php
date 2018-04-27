@@ -14,20 +14,9 @@ class ToolPartController extends Controller
 
     public function index(Request $request){
     	$toolPart = ToolPart::with([
-            'tool' => function ($tool){
-                $tool->select(['id','no', 'name','supplier_id']);
-            }, 
-            'part' => function ($part){
-                $part->select(['id','no','name']);
-            },
-
-            'tool.supplier' => function ($supplier) {
-                $supplier->select([
-                    'id',
-                    'name',
-                    'code',
-                ]);
-            }
+            'tool:id,no,name,supplier_id', 
+            'part:id,no,name',
+            'tool.supplier:id,name,code'
         ]);
     
     	$message = 'OK';

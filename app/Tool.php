@@ -43,20 +43,29 @@ class Tool extends Model
 
         $trans_date = Carbon::createFromFormat('Y-m-d', $trans_date )->format('m/d/Y');
 
+        //make array of month here
+
         $forecast = Forecast::select(DB::raw('
             TransDate as trans_date,
             SuppCode,
             PartNo,
-            DTQTY30 as month1,
-            DTQTY31 as month2,
-            DTQTY32 as month3,
-            DTQTY33 as month4,
-            DTQTY34 as month5,
-            (cast(ltrim(DTQTY30) as int) + cast(ltrim(DTQTY31) as int) + cast(ltrim(DTQTY32) as int) + cast(ltrim(DTQTY33) as int) + cast(ltrim(DTQTY34) as int))  as total
+            DT4QT30 as month1,
+            DT4QT31 as month2,
+            DT4QT32 as month3,
+            DT4QT33 as month4,
+            DT4QT34 as month5,
+            (
+                cast(ltrim(DT4QT30) as int) + 
+                cast(ltrim(DT4QT31) as int) + 
+                cast(ltrim(DT4QT32) as int) + 
+                cast(ltrim(DT4QT33) as int) + 
+                cast(ltrim(DT4QT34) as int)
+            )  as total
+            
         '))->where('RT', '=', 'D' );
 
         $forecast = $forecast->whereRaw('rtrim(PartNo) = ?', [ trim($PartNo) ] )
-        ->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ?)', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
+        ->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ? order by convert(datetime, TransDate) desc )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
 
         $forecast = $forecast->first();
 
@@ -117,7 +126,8 @@ class Tool extends Model
                             $part_detail = new Part_detail;
                             $part_detail->part_id = $part->id;
                             $part_detail->total_delivery = $part->pck31->total_qty;
-                            $part_detail->total_qty = 0;//$part->id;
+                            //total qty = data.part.total_delivery+data.forecast.total
+                            $part_detail->total_qty = 0;
                             $part_detail->trans_date = $trans_date;
                             $part_detail->save();
 
