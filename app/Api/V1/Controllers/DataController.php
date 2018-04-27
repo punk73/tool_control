@@ -417,6 +417,8 @@ class DataController extends Controller
 			$trans_date= date('Y-m-d');
 		}
 
+		$this->fillPartDetails($trans_date);
+
 		$tools = Tool::has('parts')
 		->with([
 			// 'parts', ///sudah dihandle partWithHighestTotalDelivery
@@ -531,7 +533,7 @@ class DataController extends Controller
 	}
 
 	//only fill part details
-	public function fillDetails22($trans_date = null){
+	public function fillPartDetails($trans_date = null){
 		if (!isset($trans_date) || $trans_date == null) {
 			$trans_date= date('Y-m-d');
 		}
