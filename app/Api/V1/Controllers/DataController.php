@@ -409,7 +409,7 @@ class DataController extends Controller
 		}
 
 	}
-
+	//fillDetail on both tool and part
 	public function fillDetails($trans_date = null){
 		$dataController = $this;
 
@@ -528,6 +528,37 @@ class DataController extends Controller
 		});
 
 		return $tools;
+	}
+
+	//only fill part details
+	public function fillDetails22($trans_date = null){
+		if (!isset($trans_date) || $trans_date == null) {
+			$trans_date= date('Y-m-d');
+		}
+		// return $trans_date;
+		$toolparts = ToolPart::with('part.detail');
+
+		$toolparts = $toolparts->chunk(200, function($toolparts) use ($trans_date){
+			$toolparts->each(function($toolpart) use($trans_date){
+				if($toolpart->part->detail == null){
+					$pck31 = $toolpart->part->pck31($toolpart->part->no, $toolpart->part->date_of_first_value, date('Y-m-d'));
+					$toolpart->pck31 = $pck31;
+					if (!empty($pck31)) {
+						# code...
+						$part_details = new Part_detail;
+						$part_details->part_id = $toolpart->part->id;
+						$part_details->total_delivery = $pck31->total_qty;
+						$part_details->total_qty = 0;//ini harusnya ambil dari forecast
+						$part_details->trans_date = $trans_date;
+						$part_details->save();
+					}
+				}
+			});	
+		});
+		// $toolparts = $toolparts->paginate();
+
+		return $toolparts;
+
 	}
 
 	public function show(Request $request, $tool_id){

@@ -36,6 +36,15 @@ class UserSeeder extends Seeder
         $user->access_level = 1;
         $user->supplier_id = null;
         $user->save();
+
+        //admin user
+        $user = new User;
+        $user->name = 'admin';
+        $user->email = 'admin@gmail.com';
+        $user->password = '123456';
+        $user->access_level = 1;
+        $user->supplier_id = null;
+        $user->save();
           
     }
 }
