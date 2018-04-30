@@ -323,7 +323,7 @@ class DataController extends Controller
 					$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
 				}
 
-				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6) ; //we need to find or get the forecast first;
+				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 5) ; //we need to find or get the forecast first;
 				
 				// $toolDetail->guarantee_after_forecast = 0;
 				$toolDetail->save();

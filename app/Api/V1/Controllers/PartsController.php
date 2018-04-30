@@ -67,7 +67,7 @@ class PartsController extends Controller
     }
 
     public function all(Request $request){
-       $limit = (isset($request->limit)) ? $request->limit : 15 ;
+       $limit = (isset($request->limit)) ? $request->limit : 1000 ;
        $part = Part::select([
             'id',
             'no',
@@ -78,27 +78,28 @@ class PartsController extends Controller
            $part = $part->where('no', 'like', $request->get('query')."%" );
        }
 
-       if ($request->get('supplier_id') !== null ) {
+       if ($request->get('supplier_id') !== null && preg_match('/^\d+$/', $request->supplier_id ) ) {
            $part = $part->where('supplier_id', '=', $request->get('supplier_id') );
        }
          
        $message = "OK";
 
        try {
-           $part = $part->paginate($limit);
+           // $part = $part->paginate($limit);
+            $part = $part->get();
        } catch (Exception $e) {
            $message = $e;
        }
 
-       return $part;
+       // return $part;
 
-        /*return [
+        return [
             "_meta" => [
                 "count" => count($part),
                 "message" => $message
             ],
             "data" => $part
-        ];*/
+        ];
     }
 
     public function show($id){

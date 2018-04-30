@@ -33,8 +33,12 @@ class Kernel extends ConsoleKernel
         //make schedule to import part details & tools details so that user can get the data easier.
         
 
-        $schedule->command('detail:fill')->daily('02:50')
-        ->appendOutputTo(storage_path('logs/fillDetails.log'));
+        $schedule->command('detail:fill')
+        // ->everyFiveMinutes()
+        // ->everyMinute()
+        // ->runInBackground()
+        ->daily('09:45')
+        ->appendOutputTo(storage_path('logs\fillDetails.log'));
 
         // $schedule->exec('echo hellow world')->everyMinute();
     }

@@ -52,7 +52,7 @@ class ToolsController extends Controller
     }
 
     public function all(Request $request){
-        $limit = (isset($request->limit)) ? $request->limit : 15 ;
+        $limit = (isset($request->limit)) ? $request->limit : 1000 ;
 
         $tool = Tool::select([
             'id',
@@ -67,23 +67,25 @@ class ToolsController extends Controller
             $tool = $tool->where('no', 'like', $request->get('query').'%' );
         }
 
-        if ($request->get('supplier_id') !== null ) {   
+        if ($request->get('supplier_id') !== null && preg_match('/^\d+$/', $request->supplier_id ) ) {   
             $tool = $tool->where('supplier_id', '=', $request->get('supplier_id') );
         }
 
 
         $message = 'OK';
 
-        $tool = $tool->paginate($limit);
+        $tool = $tool->get();
+        // $tool = $tool->paginate($limit);
         
-        return $tool;
-        /*return [
+        // return $tool;
+        
+        return [
             '_meta' =>[
                 'count' => count($tool),
                 'message' => $message
             ],
             'data' => $tool
-        ];*/
+        ];
     }
 
     public function show($id){
