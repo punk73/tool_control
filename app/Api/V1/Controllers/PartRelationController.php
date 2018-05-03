@@ -32,18 +32,18 @@ class PartRelationController extends Controller
                     'name',
                 ]);
             }
-        ])->orderBy('id', 'desc')->get();
+        ])->orderBy('id', 'desc')->paginate($limit);
     	$message = 'OK';
     	
         /**/
-
-    	return [
+        return $part_relation;
+    	/*return [
             "_meta" => [
                 "count" => count($part_relation),
                 "message" => $message
             ],
             "data" => $part_relation
-        ];
+        ];*/
     }
 
     public function store(Request $request){
