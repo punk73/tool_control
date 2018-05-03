@@ -79,10 +79,11 @@ class Part extends Model
             $trans_date = date('Y-m-d');
         }
 
-        // return $trans_date;
+
+        //return $trans_date;
 
         return $this->hasOne('App\Part_detail')
-        ->where('trans_date', $trans_date )
+        ->where('trans_date','=', $trans_date )
         ->orderBy('total_delivery', 'desc'); //menurun
 
     }
