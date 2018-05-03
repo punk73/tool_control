@@ -79,6 +79,10 @@ class ToolPartController extends Controller
 
     	try {
             
+            if ($request->cavity == 0 ) {
+                $request->cavity = 1;
+            }
+
             $tool->parts()->attach($request->part_id , [
                 'is_independent' => $request->is_independent,
                 'cavity' => $request->cavity
@@ -151,6 +155,10 @@ class ToolPartController extends Controller
 
             $toolpart->is_independent = (isset($request->is_independent)) ? $request->is_independent : $toolpart->is_independent;
             
+            if ($request->cavity == 0) {
+                $request->cavity = 1;
+            }
+
             $toolpart->cavity = (isset($request->cavity)) ? $request->cavity : $toolpart->cavity;
 
             $message = 'OK';
