@@ -65,7 +65,8 @@ class Tool extends Model
         '))->where('RT', '=', 'D' );
 
         $forecast = $forecast->whereRaw('rtrim(PartNo) = ?', [ trim($PartNo) ] )
-        ->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ? order by convert(datetime, TransDate) desc )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
+        //->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ? order by convert(datetime, TransDate) desc )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
+        ->whereRaw('convert(varchar(10), convert(datetime, TransDate), 112) <= ?', [$trans_date]);
 
         $forecast = $forecast->first();
 
