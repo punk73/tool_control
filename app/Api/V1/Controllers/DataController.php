@@ -143,7 +143,8 @@ class DataController extends Controller
 					'tanggal',
 					'note',
 				])
-				->where('tanggal', '<=', $trans_date );
+				->where('tanggal', '<=', $trans_date )
+				->orderBy('id','desc'); //jika disatu trans_date ada dua, maka muncul yg paling baru diinput.
 				// ->orderBy('tanggal', 'desc')
 			},
 
