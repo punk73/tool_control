@@ -41,7 +41,7 @@ class Tool extends Model
             $trans_date = date('Y-m-d');
         }
 
-        $trans_date = Carbon::createFromFormat('Y-m-d', $trans_date )->format('m/d/Y');
+        $trans_date = Carbon::createFromFormat('Y-m-d', $trans_date )->format('Ymd');
 
         //make array of month here
 
@@ -67,7 +67,6 @@ class Tool extends Model
         $forecast = $forecast->whereRaw('rtrim(PartNo) = ?', [ trim($PartNo) ] )
         //->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ? order by convert(datetime, TransDate) desc )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
         ->whereRaw('convert(varchar(10), convert(datetime, TransDate), 112) <= ?', [$trans_date]);
-
         $forecast = $forecast->first();
 
         if (empty( $forecast) ) {
