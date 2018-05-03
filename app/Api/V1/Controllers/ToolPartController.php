@@ -23,6 +23,8 @@ class ToolPartController extends Controller
 
         if (isset($request->limit)) {
             $limit = $request->limit;
+        }else{
+            $limit = 25;
         }
 
 

@@ -9,6 +9,12 @@ use App\Part_relation;
 class PartRelationController extends Controller
 {
     public function index(Request $request){
+        if (isset($request->limit)) {
+            $limit = $request->limit;
+        }else{
+            $limit = 25;
+        }
+
     	$part_relation = Part_relation::with([
             
             'parentPart' =>  function($query){
@@ -26,7 +32,7 @@ class PartRelationController extends Controller
                     'name',
                 ]);
             }
-        ])->get();
+        ])->orderBy('id', 'desc')->get();
     	$message = 'OK';
     	
         /**/
