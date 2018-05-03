@@ -21,6 +21,11 @@ class ToolPartController extends Controller
     
     	$message = 'OK';
 
+        if (isset($request->limit)) {
+            $limit = $request->limit;
+        }
+
+
         //searching tool number first
         if ($request->tool_number && $request->tool_number !='' ) {
             $toolPart = $toolPart->whereHas('tool', function ($query) use ($request){
@@ -52,7 +57,7 @@ class ToolPartController extends Controller
     		$toolPart = $toolPart->where('part_id', '=', $request->part_id );
     	}    	
 
-    	$toolPart = $toolPart->paginate();
+    	$toolPart = $toolPart->orderBy('id', 'desc')->paginate($limit);
 
         return $toolPart;
 
