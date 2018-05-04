@@ -104,8 +104,8 @@ class Tool extends Model
         $total = 0;
         //
         foreach ($parts as $key => $part) {
-            $part->detail = $part->detail($trans_date); //get part_details
-            // $part->asdfas = $trans_date;
+            // $part->detail = $part->detail($trans_date); //get part_details
+            $part->detail($trans_date); 
 
             $total_delivery = $part->first_value;
 
