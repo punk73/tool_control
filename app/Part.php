@@ -48,12 +48,14 @@ class Part extends Model
         }
 
         $pck31 = Pck31::select(
-            DB::raw('month,part_no,sum(qty) as total_qty')
+            // DB::raw('month,part_no,sum(qty) as total_qty')
+            DB::raw('part_no,sum(qty) as total_qty')
         )
         ->where('part_no', $partNo )
         ->whereBetween('input_date', [$startDate, $finishDate ] )
         ->groupBy('part_no')
-        ->groupBy('month');
+        // ->groupBy('month')
+        ;
 
         $pck31= $pck31->first();
         return $pck31;
