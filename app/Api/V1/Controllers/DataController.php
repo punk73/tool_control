@@ -364,6 +364,33 @@ class DataController extends Controller
 		return $tools;
 	}
 
+	public function index_storeprocedure(Request $request){
+		//ambil semua toolpart
+		//ambil semua toolpart.part
+ 		//ambil part.forecast;
+			
+			//kalau kosong, isi forecastnya sebagai 0;
+		//ambil tollpart.part.detail
+			//kalau kosong
+			//ambil data part.first_value + (data pck31 dari tanggal part.date_of_first_value s/d trans_date)
+			//store ke part.detail
+		//store ke part_temporary
+		//ambil semua tools dari toolpart
+		//ambil tool.detail
+			//kalau kosong
+				//ambil part detail total delivery / cavity. store as total shoot;
+				//cek apakah suffix no atau tidak.
+				//kalau suffix
+					//sum total shoot
+				//kalau nonSuffix
+					//get max()
+		//ambil machine counter
+
+		//cek apakah bisa run exec query dari sini
+		$result = DB::select('exec displayMainData "2018-05-04" ');
+		return $result;
+	}
+
 	public function getCount(Request $request){
 		
 		if (isset($request->trans_date) && $request->trans_date != '') {
