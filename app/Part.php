@@ -85,13 +85,18 @@ class Part extends Model
 
     }
 
-    public function detailBackup(){
+    public function partDetail($trans_date = null){
+        if ($trans_date == null) {
+            $trans_date = date('Y-m-d');
+        }
+
         $id = $this->id;
         $part_detail = Part_detail::select([
             'total_delivery',
             'total_qty',
             'trans_date'
         ])->where('part_id', '=', $id )
+        ->where('trans_date', $trans_date )
         ->orderBy('trans_date', 'desc')
         ->first();
         

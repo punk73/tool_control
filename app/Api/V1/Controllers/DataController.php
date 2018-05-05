@@ -118,7 +118,6 @@ class DataController extends Controller
 				}
 			}, ///sudah dihandle partWithHighestTotalDelivery
 			
-			// 'details',  ///sudah dihandle getHighestTotalShoot
 			
 			'detail' => function ($detail) use ($trans_date){
 				$detail->select([
@@ -362,6 +361,16 @@ class DataController extends Controller
 		});
 
 		return $tools;
+	}
+
+	public function indexsa(Request $request){
+		$parts = Part::has('detail')->take(10)->get();
+		
+		foreach ($parts as $key => $part) {
+			$part->detail('2018-05-02');
+		}
+
+		return $parts;
 	}
 
 	public function index_storeprocedure(Request $request){

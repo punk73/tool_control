@@ -26,7 +26,7 @@ class Tool extends Model
     ];
     
     public function supplier(){
-    	return $this->belongsTo('App\Supplier');
+        return $this->belongsTo('App\Supplier');
     }
 
     public function parts(){
@@ -46,15 +46,17 @@ class Tool extends Model
         //make array of month here
 
         $forecast = Forecast::select(DB::raw('
-            TransDate as trans_date,
+            convert(varchar(10), convert(datetime, TransDate), 120) as trans_date,
             SuppCode,
             PartNo,
-            DT4QT30 as month1,
-            DT4QT31 as month2,
-            DT4QT32 as month3,
-            DT4QT33 as month4,
-            DT4QT34 as month5,
-            (
+            DT4QT29 as month1,
+            DT4QT30 as month2,
+            DT4QT31 as month3,
+            DT4QT32 as month4,
+            DT4QT33 as month5,
+            DT4QT34 as month6,
+            (   
+                cast(ltrim(DT4QT29) as int) + 
                 cast(ltrim(DT4QT30) as int) + 
                 cast(ltrim(DT4QT31) as int) + 
                 cast(ltrim(DT4QT32) as int) + 
@@ -65,8 +67,14 @@ class Tool extends Model
         '))->where('RT', '=', 'D' );
 
         $forecast = $forecast->whereRaw('rtrim(PartNo) = ?', [ trim($PartNo) ] )
-        //->whereRaw('TransDate = (select top 1 transDate from ForecastN where TransDate <= ? order by convert(datetime, TransDate) desc )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
-        ->whereRaw('convert(varchar(10), convert(datetime, TransDate), 112) <= ?', [$trans_date]);
+        ->whereRaw('transdate = (
+            select top 1
+            convert(varchar(10), transdate, 101)
+            from svrdbs.edi.dbo.forcast_date
+            where convert(varchar(10), transdate, 112) <= ?
+            order by convert(varchar(10), transdate, 112) desc
+        )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)
+        // ->whereRaw('convert(varchar(10), convert(datetime, TransDate), 112) <= ?', [$trans_date]);
         $forecast = $forecast->first();
 
         if (empty( $forecast) ) {
@@ -80,6 +88,7 @@ class Tool extends Model
                 'month3' => 0,
                 'month4' => 0,
                 'month5' => 0,
+                'month6' => 0,
                 'total' => 0
             ];
         }
@@ -104,8 +113,8 @@ class Tool extends Model
         $total = 0;
         //
         foreach ($parts as $key => $part) {
-            // $part->detail = $part->detail($trans_date); //get part_details
-            $part->detail($trans_date); 
+            $part->detail = $part->partDetail($trans_date); //get part_details
+            
 
             $total_delivery = $part->first_value;
 
@@ -323,7 +332,7 @@ class Tool extends Model
     }
 
     public function details($trans_date = null){ //get all detail
-    	return $this->hasMany('App\Tool_detail');
+        return $this->hasMany('App\Tool_detail');
     }
 
     public function detail($trans_date = null){ //get all detail
