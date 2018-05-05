@@ -162,11 +162,13 @@ class ToolPartController extends Controller
 
             $toolpart->is_independent = (isset($request->is_independent)) ? $request->is_independent : $toolpart->is_independent;
             
-            if ($request->cavity == 0) {
-                $request->cavity = 1;
-            }
-
+            
             $toolpart->cavity = (isset($request->cavity)) ? $request->cavity : $toolpart->cavity;
+
+            //cek supaya toolpart cavity tidak 0
+            if ($toolpart->cavity == 0) {
+                $toolpart->cavity = 1;
+            }
 
             $message = 'OK';
 
