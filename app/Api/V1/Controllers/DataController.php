@@ -373,7 +373,7 @@ class DataController extends Controller
 		return $parts;
 	}
 
-	public function index_storeprocedure(Request $request){
+	public function indexStoreProcedure(Request $request){
 		//ambil semua toolpart
 		//ambil semua toolpart.part
  		//ambil part.forecast;
@@ -444,7 +444,6 @@ class DataController extends Controller
 		foreach ($partDetails as $key => $detail) {
 			$detail->delete();
 		}
-
 	}
 	//fillDetail on both tool and part
 	public function fillDetails($trans_date = null){

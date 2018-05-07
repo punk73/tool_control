@@ -110,6 +110,7 @@ class Tool extends Model
         $month3 = 0;
         $month4 = 0;
         $month5 = 0;
+        $month6 = 0;
         $total = 0;
         //
         foreach ($parts as $key => $part) {
@@ -222,6 +223,7 @@ class Tool extends Model
                     $month3 += $forecast->month3;
                     $month4 += $forecast->month4;
                     $month5 += $forecast->month5;
+                    $month6 += $forecast->month6;
                     $total += $forecast->total;
                     $PartNo = $forecast->PartNo;
                 }
@@ -253,6 +255,7 @@ class Tool extends Model
                 $month3 = 0;
                 $month4 = 0;
                 $month5 = 0;
+                $month6 = 0;
                 $total = 0;
                 $SuppCode = '';
                 $PartNo = '';
@@ -270,6 +273,7 @@ class Tool extends Model
                         $month3 += $forecast->month3;
                         $month4 += $forecast->month4;
                         $month5 += $forecast->month5;
+                        $month6 += $forecast->month6;
                         $total += $forecast->total;
                         $PartNo += $forecast->PartNo;
                         $SuppCode += $forecast->SuppCode;
@@ -285,6 +289,7 @@ class Tool extends Model
                     'month3' => $month3,
                     'month4' => $month4,
                     'month5' => $month5,
+                    'month6' => $month6,
                     'total' => $total
                 ];
             }
@@ -299,6 +304,7 @@ class Tool extends Model
                 'month3' => $month3,
                 'month4' => $month4,
                 'month5' => $month5,
+                'month6' => $month6,
                 'total' => $total
             ];
         }
