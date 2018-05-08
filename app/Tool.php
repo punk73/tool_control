@@ -231,7 +231,7 @@ class Tool extends Model
 
             $part->total_delivery = $highest_total_delivery;
             //ceil itu pembulatan ke atas. in case hasilnya 12.5 maka akan jadi 13;
-            $part->total_shoot_based_on_part = ceil($highest_total_delivery / (int) $part->pivot->cavity) ;
+            $part->total_shoot_based_on_part = ceil($highest_total_delivery / (float) $part->pivot->cavity) ;
             $result = $part;
         }
 

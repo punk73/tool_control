@@ -222,6 +222,11 @@ class DataController extends Controller
 				});
 			}
 
+			if (isset($request->hard_load ) && $request->hard_load  == true) {
+				DB::table('tool_details')->where('trans_date', $trans_date )->truncate();
+				// return;
+			}
+
 
 			//show the warning tools;
 			
@@ -363,16 +368,6 @@ class DataController extends Controller
 		});
 
 		return $tools;
-	}
-
-	public function indexsa(Request $request){
-		$parts = Part::has('detail')->take(10)->get();
-		
-		foreach ($parts as $key => $part) {
-			$part->detail('2018-05-02');
-		}
-
-		return $parts;
 	}
 
 	public function indexStoreProcedure(Request $request){
@@ -518,7 +513,7 @@ class DataController extends Controller
 					$is_suffix_number = (int) $tool->part->pivot->is_independent;
 					
 					//ceil = pembulatan ke atas
-					$total_shoot = /**/ ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+					$total_shoot = /**/ ceil( ( $total_delivery / (float) $tool->part->pivot->cavity ) );
 					//save to tool_details
 					$toolDetail = new Tool_detail;
 					$toolDetail->tool_id  = $tool->id;
@@ -530,7 +525,7 @@ class DataController extends Controller
 						$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
 					}
 
-					$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6) ; //we need to find or get the forecast first;
+					$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6) ; //we need to find or get the forecast first;
 					
 					// $toolDetail->guarantee_after_forecast = 0;
 					$toolDetail->save();
