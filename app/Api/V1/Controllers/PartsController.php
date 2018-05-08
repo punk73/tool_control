@@ -63,7 +63,6 @@ class PartsController extends Controller
         }
 
         return $part;
-
     }
 
     public function all(Request $request){
@@ -103,7 +102,12 @@ class PartsController extends Controller
     }
 
     public function show($id){
-        $part = Part::find($id);
+        $part = Part::with([
+            'details',
+            'tools',
+            'supplier',
+            'parentParts'
+        ])->find($id);
 
         
         if (!empty($part) && $part->is_deleted == 0 ) {

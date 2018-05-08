@@ -118,7 +118,6 @@ class DataController extends Controller
 				}
 			}, ///sudah dihandle partWithHighestTotalDelivery
 			
-			// 'details',  ///sudah dihandle getHighestTotalShoot
 			
 			'detail' => function ($detail) use ($trans_date){
 				$detail->select([
@@ -192,22 +191,24 @@ class DataController extends Controller
 			}
 
 			//show the danger tools
+			//yg habis dalam 6 bulan kedepan disebut danger
 			if (isset($request->danger) && $request->danger == true) {
 				$tools = $tools->whereHas('details', function ($query) use ($trans_date){
 					$query
 					//dengan begini danger hanya show yg hari ini merah saja;
 					->where('trans_date', $trans_date )
-					->where('balance_shoot', '<=', 0);
+					->where('guarantee_after_forecast', '<=', 6);
 				});
 			}
 
 			//show the safe tools
+			//yg tidak habis dalam 6 bulan ke depan
 			if (isset($request->safe) && $request->safe == true) {
 				$tools = $tools->whereHas('details', function ($query) use ($trans_date){
 					$query
 					//dengan begini danger hanya show yg hari ini merah saja;
 					->where('trans_date', $trans_date )
-					->where('balance_shoot', '>', 0);
+					->where('guarantee_after_forecast', '>', 6);
 				});
 			}
 
@@ -217,7 +218,7 @@ class DataController extends Controller
 					$query
 					//dengan begini danger hanya show yg hari ini merah saja;
 					->where('trans_date', $trans_date )
-					->where('guarantee_after_forecast', '<=', 0);
+					->where('guarantee_after_forecast', '<=', 6 );
 				});
 			}
 
@@ -312,7 +313,7 @@ class DataController extends Controller
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
 				//ceil = pembulatan ke atas
-				$total_shoot = /**/ ceil( ( $total_delivery / (int) $tool->part->pivot->cavity ) );
+				$total_shoot = /**/ ceil( ( $total_delivery / (float) $tool->part->pivot->cavity ) );
 				//save to tool_details
 				$toolDetail = new Tool_detail;
 				$toolDetail->tool_id  = $tool->id;
@@ -324,7 +325,7 @@ class DataController extends Controller
 					$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
 				}
 
-				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (int) $tool->part->pivot->cavity ) / ($tool->forecast->total / 5) ; //we need to find or get the forecast first;
+				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 5) ; //we need to find or get the forecast first;
 				
 				// $toolDetail->guarantee_after_forecast = 0;
 				$toolDetail->save();
@@ -341,14 +342,14 @@ class DataController extends Controller
 				$tool->balance_shoot = $tool->detail->balance_shoot;
 				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
 
-				if ($tool->detail->total_shoot != ( $tool->part->total_shoot_based_on_part + $tool->start_value ) ) {
+				if ($tool->detail->total_shoot != ( ($tool->part->total_shoot_based_on_part+$tool->start_value)/ (float) $tool->part->pivot->cavity) ) {
 					//do the updating over here;
 					$toolDetail = Tool_detail::where('tool_id', $tool->detail->tool_id )
 					->where('trans_date', $trans_date)
 					->first();
 					$tool->is_same = $toolDetail ;
 					if (!empty( $toolDetail ) ) {
-						$total_shoot = ( $tool->part->total_shoot_based_on_part + $tool->start_value );
+						$total_shoot = ceil( ($tool->part->total_shoot_based_on_part+$tool->start_value)/ (float) $tool->part->pivot->cavity) ;
 
 						$toolDetail->total_shoot = $total_shoot;
 						$toolDetail->trans_date = $trans_date;
@@ -364,7 +365,17 @@ class DataController extends Controller
 		return $tools;
 	}
 
-	public function index_storeprocedure(Request $request){
+	public function indexsa(Request $request){
+		$parts = Part::has('detail')->take(10)->get();
+		
+		foreach ($parts as $key => $part) {
+			$part->detail('2018-05-02');
+		}
+
+		return $parts;
+	}
+
+	public function indexStoreProcedure(Request $request){
 		//ambil semua toolpart
 		//ambil semua toolpart.part
  		//ambil part.forecast;
@@ -400,9 +411,9 @@ class DataController extends Controller
 		}
 
 		$tools = Tool::select(DB::raw('
-			sum(case when balance_shoot < 0 then 1 else 0 end) danger, 
-			sum(case when balance_shoot > 0 then 1 else 0 end) safe,
-			sum(case when guarantee_after_forecast < 0 then 1 else 0 end) warning,
+			sum(case when guarantee_after_forecast <= 6 then 1 else 0 end) danger, 
+			sum(case when guarantee_after_forecast > 6 then 1 else 0 end) safe,
+			--sum(case when guarantee_after_forecast <= 6 then 1 else 0 end) warning,
 			tool_details.trans_date
 		'))->leftJoin('tool_details', 'tools.id', '=', 'tool_details.tool_id' )
 		->where('trans_date', $trans_date )
@@ -435,7 +446,6 @@ class DataController extends Controller
 		foreach ($partDetails as $key => $detail) {
 			$detail->delete();
 		}
-
 	}
 	//fillDetail on both tool and part
 	public function fillDetails($trans_date = null){

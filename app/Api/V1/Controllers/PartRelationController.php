@@ -32,11 +32,39 @@ class PartRelationController extends Controller
                     'name',
                 ]);
             }
-        ])->orderBy('id', 'desc')->paginate($limit);
+        ])->orderBy('id', 'desc');
+
+
+        // FILTERING CODING
+            if (isset($request->children_part_id) && $request->children_part_id != null ) {
+                $part_relation = $part_relation->where('children_part_id', $request->children_part_id );            
+            }
+
+            if (isset($request->parent_part_id) && $request->parent_part_id != null ) {
+                $part_relation = $part_relation->where('parent_part_id', $request->parent_part_id );            
+            }
+
+            if (isset($request->children_part_no) && $request->children_part_no != null ) {
+                $part_relation = $part_relation->whereHas('childrenPart', function($children) use ($request){
+                    $children->where('no', 'like', $request->children_part_no . '%' );
+                });            
+            }
+
+            if (isset($request->parent_part_no) && $request->parent_part_no != null ) {
+                $part_relation = $part_relation->whereHas('parentPart', function($parent) use ($request){
+                    $parent->where('no', 'like', $request->parent_part_no . '%' );
+                });            
+            }
+        // END OF FILTERING CODING       
+
+        $part_relation = $part_relation->paginate($limit);
     	$message = 'OK';
+
+
     	
         /**/
         return $part_relation;
+
     	/*return [
             "_meta" => [
                 "count" => count($part_relation),

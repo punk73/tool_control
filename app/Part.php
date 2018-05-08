@@ -48,12 +48,14 @@ class Part extends Model
         }
 
         $pck31 = Pck31::select(
-            DB::raw('month,part_no,sum(qty) as total_qty')
+            // DB::raw('month,part_no,sum(qty) as total_qty')
+            DB::raw('part_no,sum(qty) as total_qty')
         )
         ->where('part_no', $partNo )
         ->whereBetween('input_date', [$startDate, $finishDate ] )
         ->groupBy('part_no')
-        ->groupBy('month');
+        // ->groupBy('month')
+        ;
 
         $pck31= $pck31->first();
         return $pck31;
@@ -85,13 +87,18 @@ class Part extends Model
 
     }
 
-    public function detailBackup(){
+    public function partDetail($trans_date = null){
+        if ($trans_date == null) {
+            $trans_date = date('Y-m-d');
+        }
+
         $id = $this->id;
         $part_detail = Part_detail::select([
             'total_delivery',
             'total_qty',
             'trans_date'
         ])->where('part_id', '=', $id )
+        ->where('trans_date', $trans_date )
         ->orderBy('trans_date', 'desc')
         ->first();
         
