@@ -25,7 +25,7 @@ return [
     ],
 
     'reset_password' => [
-        'release_token' => env('PASSWORD_RESET_RELEASE_TOKEN', false),
+        'release_token' => env('PASSWORD_RESET_RELEASE_TOKEN', true),
         'validation_rules' => [
             'token' => 'required',
             'email' => 'required|email',

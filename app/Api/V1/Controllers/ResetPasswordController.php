@@ -4,11 +4,13 @@ namespace App\Api\V1\Controllers;
 
 use Config;
 use App\User;
-use Tymon\JWTAuth\JWTAuth;
+use JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
 use App\Api\V1\Requests\ResetPasswordRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Http\Request;
 
 class ResetPasswordController extends Controller
 {
@@ -19,6 +21,7 @@ class ResetPasswordController extends Controller
                 $this->reset($user, $password);
             }
         );
+
 
         if($response !== Password::PASSWORD_RESET) {
             throw new HttpException(500);
@@ -36,6 +39,31 @@ class ResetPasswordController extends Controller
             'status' => 'ok',
             'token' => $JWTAuth->fromUser($user)
         ]);
+    }
+
+    public function changesPassword(Request $request){
+        //validate
+        if ($request->password != $request->password_confirmation ) {
+            throw new HttpException(500);
+        }
+        
+        $user = JWTAuth::parseToken()->authenticate();
+
+        if( Hash::check( $request->old_password , $user->password)){
+            $message = 'Ok';
+            $user->password = $request->password;
+            $user->save();   
+        }else{
+            $message='Email or Password is wrong!';
+        }
+
+        return [
+            '_meta' => [
+                'message' => $message
+            ],
+            'data' => $user
+        ];
+
     }
 
     /**
