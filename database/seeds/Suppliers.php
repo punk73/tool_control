@@ -26,12 +26,6 @@ class Suppliers extends Seeder
             $supplier->name = $value['SuppName'];
             $supplier->code = $value['SuppCode'];
             $supplier->save();
-            
-            /*DB::table('suppliers')->insert([
-                
-                'code'=>$value['SuppCode'] ,
-                'name'=> $value['SuppName']
-            ]);*/ 
         }
     }
 }

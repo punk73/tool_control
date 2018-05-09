@@ -13,8 +13,6 @@ $api->version('v1', function (Router $api) {
         $api->post('recovery', 'App\\Api\\V1\\Controllers\\ForgotPasswordController@sendResetEmail');
         $api->post('reset', 'App\\Api\\V1\\Controllers\\ResetPasswordController@resetPassword');
         $api->post('changes', 'App\\Api\\V1\\Controllers\\ResetPasswordController@changesPassword');
-
-
     });
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
@@ -45,6 +43,7 @@ $api->version('v1', function (Router $api) {
         $api->group(['prefix' => 'suppliers'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\SuppliersController@index' );
             $api->get('/all', 'App\\Api\\V1\\Controllers\\SuppliersController@all' );
+            $api->post('/sync', 'App\\Api\\V1\\Controllers\\SuppliersController@sync' );
             $api->get('/{id}', 'App\\Api\\V1\\Controllers\\SuppliersController@show' );
         });
 

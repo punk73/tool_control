@@ -7,6 +7,7 @@ use JWTAuth;
 use Dingo\Api\Routing\Helpers;
 use App\Supplier;
 use App\UserSupp;
+use DB;
 
 
 class SuppliersController extends Controller
@@ -14,6 +15,12 @@ class SuppliersController extends Controller
 	use Helpers;
 	
     public function index(Request $request){
+        if (isset( $request->limit) && $request->limit != '' ) {
+            $limit = $request->limit;
+        }else{
+            $limit = 25;
+        }
+
         $message = "OK";
     	$supplier = Supplier::select([
     		'id', 'name', 'code'
@@ -27,7 +34,7 @@ class SuppliersController extends Controller
             $supplier = $supplier->where('name', 'like', $request->name .'%' );
         }        
 
-        $supplier = $supplier->paginate();
+        $supplier = $supplier->paginate($limit);
 
         $additional_message = collect(['_meta'=> [
             'message'=>$message,
@@ -130,5 +137,35 @@ class SuppliersController extends Controller
         ];
     }
 
+    public function sync (){
+        // truncate table supplier,
+        /*DB::table('suppliers')->truncate();*/
+        //reupload
+        
+        $currentUser = UserSupp::select([
+            'SuppName',
+            'SuppCode'
+        ])->get();
+
+        foreach ($currentUser as $key => $value){ 
+            # code...
+            $value['SuppName'] = str_replace("  ", "", $value['SuppName']);  
+
+            $supplier = Supplier::where('name', '=', $value['SuppName'] )->where('code','=', $value['SuppCode'])->first();
+            if ($supplier == null ){
+                $supplier = new Supplier;
+                $supplier->name = $value['SuppName'];
+                $supplier->code = $value['SuppCode'];
+                $supplier->save();   
+            }
+        }
+
+        return [
+            '_meta' => [
+                'message' => 'OK'
+            ],
+            'data' => $currentUser
+        ];
+    }
     
 }
