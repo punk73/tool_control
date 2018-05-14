@@ -57,7 +57,7 @@ class PartsController extends Controller
         $message = "OK";
 
         try {
-            $part = $part->paginate($limit);
+            $part = $part->orderBy('id', 'desc')->paginate($limit);
         } catch (Exception $e) {
             $message = $e;
         }
@@ -85,7 +85,7 @@ class PartsController extends Controller
 
        try {
            // $part = $part->paginate($limit);
-            $part = $part->get();
+            $part = $part->orderBy('id', 'desc')->get();
        } catch (Exception $e) {
            $message = $e;
        }

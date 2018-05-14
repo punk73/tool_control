@@ -40,7 +40,7 @@ class ToolsController extends Controller
             
         }
 
-    	$tool = $tool->paginate($limit);
+    	$tool = $tool->orderBy('id', 'desc')->paginate($limit);
 
     	$additional_message = collect(['_meta'=> [
             'message'=>$message,
@@ -74,7 +74,7 @@ class ToolsController extends Controller
 
         $message = 'OK';
 
-        $tool = $tool->get();
+        $tool = $tool->orderBy('id', 'desc')->get();
         // $tool = $tool->paginate($limit);
         
         // return $tool;
