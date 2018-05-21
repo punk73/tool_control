@@ -317,7 +317,7 @@ class DataController extends Controller
 			//has total shoot in tool details
 			if ($tool->detail == null ) {
 				//total delivery disini adalah total delivery setelah ditambah forecast
-				$total_delivery = $tool->part->total_delivery + $tool->forecast->total ; 
+				$total_delivery = $tool->part->total_delivery/* + $tool->forecast->total */; 
 
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
