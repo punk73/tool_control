@@ -31,7 +31,7 @@ class SuppliersController extends Controller
         }
 
         if (isset($request->name)) {
-            $supplier = $supplier->where('name', 'like', $request->name .'%' );
+            $supplier = $supplier->where('name', 'like', '%'.$request->name .'%' );
         }        
 
         $supplier = $supplier->paginate($limit);
@@ -124,8 +124,19 @@ class SuppliersController extends Controller
     	];
     }
 
-    public function all(){
-        $supplier = Supplier::all();
+    public function all(Request $request){
+        $supplier = Supplier::select();
+        
+        if (isset($request->code)) {
+            $supplier = $supplier->where('code', 'like', $request->code .'%' );
+        }
+
+        if (isset($request->name)) {
+            $supplier = $supplier->where('name', 'like', '%'.$request->name .'%' );
+        }
+
+        $supplier = $supplier->get();
+
         $message = 'OK';
 
         return [
