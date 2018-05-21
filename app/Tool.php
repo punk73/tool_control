@@ -112,6 +112,8 @@ class Tool extends Model
         $month5 = 0;
         $month6 = 0;
         $total = 0;
+
+
         //
         foreach ($parts as $key => $part) {
             $part->detail = $part->partDetail($trans_date); //get part_details
@@ -211,8 +213,10 @@ class Tool extends Model
             if ($part->pivot->is_independent == "0" || $part->pivot->is_independent == 0 ) {
                 if ($highest_total_delivery < $total_delivery ) {
                    $highest_total_delivery = $total_delivery;
+                   $partResult = $part;
                 }
             }else {
+                $partResult = $part;
                 $highest_total_delivery += $total_delivery;
                 //if it's not suffix number, get the forecast, then summary
                 $forecast = $this->forecast($part->no, $trans_date );
@@ -229,10 +233,11 @@ class Tool extends Model
                 }
             }
 
-            $part->total_delivery = $highest_total_delivery;
+            // inilah letak kesalahannya. part selalu return yang terakhir, bkn yg memiliki total delivery paling tinggi!
+            $partResult->total_delivery = $highest_total_delivery;
             //ceil itu pembulatan ke atas. in case hasilnya 12.5 maka akan jadi 13;
-            $part->total_shoot_based_on_part = ceil($highest_total_delivery / (float) $part->pivot->cavity) ;
-            $result = $part;
+            $partResult->total_shoot_based_on_part = ceil($highest_total_delivery / (float) $partResult->pivot->cavity) ;
+            $result = $partResult;
         }
 
         //what happen if result == null ??
