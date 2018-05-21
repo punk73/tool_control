@@ -147,7 +147,7 @@ class DataController extends Controller
 				// ->orderBy('tanggal', 'desc')
 			},
 
-			'supplier' // -->get supplier
+			'supplier:id,name,code' // -->get supplier
 		]);
 
 		/*Searching Code*/
@@ -316,7 +316,9 @@ class DataController extends Controller
 
 			//has total shoot in tool details
 			if ($tool->detail == null ) {
-				$total_delivery = $tool->part->total_delivery;
+				//total delivery disini adalah total delivery setelah ditambah forecast
+				$total_delivery = $tool->part->total_delivery + $tool->forecast->total ; 
+
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
 				//ceil = pembulatan ke atas
@@ -332,7 +334,7 @@ class DataController extends Controller
 					$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
 				}
 
-				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 5) ; //we need to find or get the forecast first;
+				$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6 ) ; //we need to find or get the forecast first;
 				
 				// $toolDetail->guarantee_after_forecast = 0;
 				$toolDetail->save();
