@@ -19,7 +19,7 @@ class PartDetailController extends Controller
     	}
 
         if (isset($request->trans_date) && $request->trans_date != '' ) {
-            $parts = $parts->where('trans_date', $request->trans_date );          
+            $parts = $parts->where('trans_date','<=', $request->trans_date );          
         }		  	
 
     	$parts = $parts

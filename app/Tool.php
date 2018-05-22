@@ -233,6 +233,10 @@ class Tool extends Model
                 }
             }
 
+            if(! isset($partResult)){
+                // ini ditambahkan karena kalau nerima trans_date, program error. $partResult ga ter defined di coding sebelumya
+                $partResult = $part; 
+            }
             // inilah letak kesalahannya. part selalu return yang terakhir, bkn yg memiliki total delivery paling tinggi!
             $partResult->total_delivery = $highest_total_delivery;
             //ceil itu pembulatan ke atas. in case hasilnya 12.5 maka akan jadi 13;

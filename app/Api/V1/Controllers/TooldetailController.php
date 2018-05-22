@@ -24,6 +24,10 @@ class ToolDetailController extends Controller
             });    		
     	}    	
 
+        if (isset($request->trans_date) && $request->trans_date != '' ) {
+            $tools = $tools->where('trans_date','<=', $request->trans_date );          
+        }
+
     	$tools = $tools
         ->orderBy('trans_date', 'desc')
         ->paginate();

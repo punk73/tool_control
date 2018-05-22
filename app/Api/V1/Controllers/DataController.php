@@ -238,6 +238,7 @@ class DataController extends Controller
 		return ['query' => $tools];*/
 
 		$tools = $tools->paginate($limit);
+		// return $tools;
 		//perulangan dari tools 
 		$tools->each(function($tool, $key) use ($dataController, $trans_date, $request) {
 
