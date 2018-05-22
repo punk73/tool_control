@@ -223,7 +223,9 @@ class DataController extends Controller
 			}
 
 			if (isset($request->hard_load ) && $request->hard_load  == true) {
-				DB::table('tool_details')->where('trans_date', $trans_date )->truncate();
+				DB::table('tool_details')->where('trans_date', $trans_date )->delete();
+				DB::table('part_details')->where('trans_date', $trans_date )->delete();
+
 				// return;
 			}
 
@@ -316,9 +318,9 @@ class DataController extends Controller
 			// }
 
 			//has total shoot in tool details
+			$total_delivery = $tool->part->total_delivery; 
 			if ($tool->detail == null ) {
 				//total delivery disini adalah total delivery setelah ditambah forecast
-				$total_delivery = $tool->part->total_delivery/* + $tool->forecast->total */; 
 
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
@@ -353,6 +355,7 @@ class DataController extends Controller
 				$tool->trans_date = $tool->detail->trans_date;
 				$tool->balance_shoot = $tool->detail->balance_shoot;
 				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
+
 
 				if ($tool->detail->total_shoot != ( $tool->part->total_shoot_based_on_part+$tool->start_value ) ) {
 					//do the updating over here;
