@@ -325,7 +325,7 @@ class DataController extends Controller
 				$is_suffix_number = (int) $tool->part->pivot->is_independent;
 				
 				//ceil = pembulatan ke atas
-				$total_shoot = /**/ ceil( ( $total_delivery / (float) $tool->part->pivot->cavity ) );
+				$total_shoot = ceil( ( $total_delivery / (float) $tool->part->pivot->cavity ) );
 				$total_shoot_after_forecast = ceil( ( ($total_delivery + $tool->forecast->total) / (float) $tool->part->pivot->cavity ) );
 				//save to tool_details
 				$toolDetail = new Tool_detail;

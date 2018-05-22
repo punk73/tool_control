@@ -104,6 +104,7 @@ class Tool extends Model
         $parts = $this->parts;
 
         $highest_total_delivery = 0;
+        $highestTotalShoot = 0;
         // setting variable for not suffix number
         $month1 = 0;
         $month2 = 0;
@@ -120,6 +121,7 @@ class Tool extends Model
             
 
             $total_delivery = $part->first_value;
+            $partCavity = (float) $part->pivot->cavity;
 
             if (isset( $part->detail->total_delivery )) {
                 $total_delivery += $part->detail->total_delivery;     
@@ -201,7 +203,7 @@ class Tool extends Model
                 }
 
                 //get detail lagi, siapa tau sudah diset dr pck31;
-                $part->detail;
+                $part->detail = $part->partDetail($trans_date) ;
                 if (isset( $part->detail->total_delivery )) {
                     $total_delivery += $part->detail->total_delivery;     
                 } 
@@ -210,10 +212,22 @@ class Tool extends Model
             /*there will be a serious problem if user set two part suffix and not suffix in the same tools. the result of this logic will not apply properly*/
 
             //cek if it's suffix number or not
+            $totalShootPart = ( ceil($total_delivery / $partCavity));
+
             if ($part->pivot->is_independent == "0" || $part->pivot->is_independent == 0 ) {
-                if ($highest_total_delivery < $total_delivery ) {
-                   $highest_total_delivery = $total_delivery;
-                   $partResult = $part;
+                /*
+                    sekarang meskipun total delivery nya lebih gede, kalau total shoot nya lebih kecil, dia akan refer ke total shoot yg lebih gede.
+                */
+                /*$part->totalShootPart = $totalShootPart;
+                $part->highest_total_delivery_temp = $highest_total_delivery;*/
+
+                if ($highestTotalShoot < $totalShootPart  ) {
+                    // yg jadi penentu part mana yg dipilih adalah highest total shoot
+                    $highestTotalShoot = $totalShootPart;
+
+
+                    $highest_total_delivery = $total_delivery;
+                    $partResult = $part;
                 }
             }else {
                 $partResult = $part;
