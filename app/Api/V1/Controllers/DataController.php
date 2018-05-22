@@ -323,12 +323,14 @@ class DataController extends Controller
 				
 				//ceil = pembulatan ke atas
 				$total_shoot = /**/ ceil( ( $total_delivery / (float) $tool->part->pivot->cavity ) );
+				$total_shoot_after_forecast = ceil( ( ($total_delivery + $tool->forecast->total) / (float) $tool->part->pivot->cavity ) );
 				//save to tool_details
 				$toolDetail = new Tool_detail;
 				$toolDetail->tool_id  = $tool->id;
 				$toolDetail->total_shoot = $total_shoot;
 				$toolDetail->trans_date = $trans_date;
-				$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot ));
+				/*balance shoot tidak menggunakan total shoot aktual melainkan total shoot after forecast*/
+				$toolDetail->balance_shoot = ($tool->guarantee_shoot - $total_shoot_after_forecast );
 
 				if ($tool->forecast->total == 0) {
 					$tool->forecast->total = 1; //kalau forecast nya ga ada, anggap aja jadi satu. biar ga division by zero
@@ -351,18 +353,20 @@ class DataController extends Controller
 				$tool->balance_shoot = $tool->detail->balance_shoot;
 				$tool->guarantee_after_forecast = $tool->detail->guarantee_after_forecast;
 
-				if ($tool->detail->total_shoot != ( ($tool->part->total_shoot_based_on_part+$tool->start_value)/ (float) $tool->part->pivot->cavity) ) {
+				if ($tool->detail->total_shoot != ( $tool->part->total_shoot_based_on_part+$tool->start_value ) ) {
 					//do the updating over here;
 					$toolDetail = Tool_detail::where('tool_id', $tool->detail->tool_id )
 					->where('trans_date', $trans_date)
 					->first();
 					$tool->is_same = $toolDetail ;
 					if (!empty( $toolDetail ) ) {
-						$total_shoot = ceil( ($tool->part->total_shoot_based_on_part+$tool->start_value)/ (float) $tool->part->pivot->cavity) ;
-
+						// total shoot gausah dibagi cavity lagi, kan udah total shoot bukan total delivery
+						$total_shoot = ceil( ($tool->part->total_shoot_based_on_part+$tool->start_value));/*/ (float) $tool->part->pivot->cavity) ;*/
+						$total_shoot_after_forecast = ceil( ( ($total_delivery + $tool->forecast->total) / (float) $tool->part->pivot->cavity ) );
 						$toolDetail->total_shoot = $total_shoot;
 						$toolDetail->trans_date = $trans_date;
-						$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot ));
+						$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot_after_forecast ));
+						$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6 ) ;
 						$toolDetail->save();
 					}
 					
