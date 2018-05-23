@@ -164,8 +164,9 @@ class Tool extends Model
                         $tmpTotalDelivery = 0;
 
                         foreach ($part->parentParts as $key => $parentPart ) {
-                            $parentPart->parentPart->detail; //get the detail
-
+                            $parentPart->parentPart->detail = $parentPart->parentPart->partDetail($trans_date); //get the detail
+                            /*code below is for debugging data.*/
+                            // $parentPart->parentPart->tmpTotalDelivery = $tmpTotalDelivery;
                             if ($parentPart->parentPart->detail == null ) {
                                 //pck31 method get expect partno, startDate, finish date as paramter;
                                 $part->pck31 = $part->pck31($parentPart->parentPart->no, $parentPart->parentPart->date_of_first_value, $trans_date  );
@@ -173,6 +174,8 @@ class Tool extends Model
                                     # code...
                                     $tmpTotalDelivery += $part->pck31->total_qty;
                                 }
+
+
                             }else {
                                 
                                 $part->pck31 = (object) [ 
