@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\ToolPart;
 use App\Tool;
 use App\Part;
+use DB;
 
 class ToolPartController extends Controller
 {
@@ -186,6 +187,55 @@ class ToolPartController extends Controller
             ],
             'data' => $toolpart
         ];
+    }
+
+    public function download(){
+        $do = DB::table('tool_part');
+        // return $do->get();
+
+        $do = $do->select([
+            'tool_part.id',
+            // 'tool_id',
+            'tool.no as tool_no',
+            // 'part_id',
+            'part.no as part_no',
+            'cavity',
+            'is_independent',
+        ])->where('part.deleted_at', null)
+        ->where('tool.deleted_at', null)
+        ->join('parts as part', 'tool_part.part_id', '=', 'part.id')
+        ->join('tools as tool', 'tool_part.tool_id', '=', 'tool.id')
+        ->get();
+
+        // return $do;
+
+        $fname = 'Cavity.csv';
+
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename=$fname");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        
+        $fp = fopen("php://output", "w");
+        
+        $headers = 'id,tool_no,part_no,cavity,is_suffix_number'."\n";
+
+        fwrite($fp,$headers);
+
+        foreach ($do as $key => $value) {
+            # code...
+            $row = [
+                $value->id,
+                $value->tool_no,
+                $value->part_no,
+                $value->cavity,
+                $value->is_independent,
+            ];
+            
+            fputcsv($fp, $row);
+        }
+
+        fclose($fp);
     }
 
 }

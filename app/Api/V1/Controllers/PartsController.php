@@ -215,6 +215,52 @@ class PartsController extends Controller
                 "message" => $message,
             ]
         ];
+    }
 
+    public function download(){
+        $do = DB::table('parts');
+
+        $do = $do->select([
+            'parts.id',
+            'no',
+            'parts.name',
+            // 'supplier_id',
+            'suppliers.name as supplier_name',
+            'model',
+            'first_value',
+            'date_of_first_value',
+        ])->where('deleted_at', null)
+        ->join('suppliers', 'parts.supplier_id', '=', 'suppliers.id')
+        ->get();
+
+        $fname = 'Parts.csv';
+
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename=$fname");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        
+        $fp = fopen("php://output", "w");
+        
+        $headers = 'id,no,name,supplier_name,model,first_value,date_of_first_value'."\n";
+
+        fwrite($fp,$headers);
+
+        foreach ($do as $key => $value) {
+            # code...
+            $row = [
+                $value->id,
+                $value->no,
+                $value->name,
+                $value->supplier_name,
+                $value->model,
+                $value->first_value,
+                $value->date_of_first_value,   
+            ];
+            
+            fputcsv($fp, $row);
+        }
+
+        fclose($fp);
     }
 }
