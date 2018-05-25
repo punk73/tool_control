@@ -11,6 +11,11 @@ class Part_relation extends Model
     	'created_at', 'updated_at'
     ];
 
+    protected $fillable = [
+        'children_part_id',
+        'parent_part_id',
+    ];
+
     public function parentPart(){
     	/*$parent_id = $this->parent_part_id;
     	$part = Part::select([

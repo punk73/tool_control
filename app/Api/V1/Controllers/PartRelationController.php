@@ -5,6 +5,8 @@ namespace App\Api\V1\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Part_relation;
+use App\Api\V1\Controllers\CsvController;
+use App\Part;
 use DB;
 
 class PartRelationController extends Controller
@@ -181,5 +183,93 @@ class PartRelationController extends Controller
         }
 
         fclose($fp);
+    }
+
+    public function upload(Request $request){
+        //get the
+        if ($request->hasFile('file')) {
+
+            # kalau bukan csv, return false;
+            if ($request->file('file')->getClientOriginalExtension() != 'csv' ) {
+                return [
+                    'success' => false,
+                    'message' => 'you need to upload csv file!',
+                    'data' => $request->file('file')->getClientOriginalExtension()
+                ];
+            }
+
+            $file = $request->file('file');
+            $name = time() . '-' . $file->getClientOriginalName();
+            $path = storage_path('parts');
+            
+            $file->move($path, $name); //pindah ke file server;
+            
+            // return [$file, $path, $name ];
+            $fullname = $path .'\\'. $name ;
+            $csv = new CsvController();
+            $importedCsv = $csv->csvToArray($fullname);
+            // return [$fullname, $importedCsv];
+            $records = [];
+            $errorFound=0;
+            if ($importedCsv) { //kalau something wrong ini bakal bernilai false
+                for ($i = 0; $i < count($importedCsv); $i++)
+                {
+                    
+                    $children_part_no = $importedCsv[$i]['children_part_no'];
+                    $parent_part_no = $importedCsv[$i]['parent_part_no'];
+
+                    $parent = Part::where('no','like', $parent_part_no.'%' )->first();
+                    /*check apakah parent ada*/
+                    if (is_null($parent)) {
+                        $records[] = [
+                            'parent_part_no' => $parent_part_no,
+                            'message' => 'data not found',
+                        ];
+                        $errorFound++;
+                        continue;
+                    }
+
+                    $children = Part::where('no','like', $children_part_no.'%' )->first();
+                    /*cek apakah children ada*/
+                    if (is_null($children)) {
+                        $records[] = [
+                            'children_part_no' => $children_part_no,
+                            'message' => 'data not found',
+                        ];
+                        $errorFound++;
+                        continue;
+                    }
+
+                    $parent_part_id = $parent->id;
+                    $children_part_id = $children->id;
+
+                    // return $parent;
+
+                    $record = Part_relation::firstOrCreate([   
+                        'parent_part_id' => $parent_part_id,
+                        'children_part_id' => $children_part_id,  
+                    ]
+                    ,[   
+                        'parent_part_id' => $parent_part_id,
+                        'children_part_id' => $children_part_id,  
+                    ]);
+                    $records[]=$record;
+
+                    /*kalau ada update, kalau ga ada, ngesave*/
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Good!!',
+                'error_found'=>$errorFound,
+                'data' => $records,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'no file found'
+        ];
     }
 }
