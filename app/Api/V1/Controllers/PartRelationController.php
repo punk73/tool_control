@@ -5,6 +5,7 @@ namespace App\Api\V1\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Part_relation;
+use DB;
 
 class PartRelationController extends Controller
 {
@@ -136,5 +137,49 @@ class PartRelationController extends Controller
     			'message' => $message
     		]
     	];
+    }
+
+    public function download(){
+        $do = DB::table('part_relations');
+
+        $do = $do->select([
+            'part_relations.id',
+            // 'part_relations.children_part_id',
+            'children.no as children_part_no',
+            // 'part_relations.parent_part_id',
+            'parent.no as parent_part_no',
+        ])->where('parent.deleted_at', null)
+        ->where('children.deleted_at', null)
+        ->join('parts as children', 'part_relations.children_part_id', '=', 'children.id')
+        ->join('parts as parent', 'part_relations.parent_part_id', '=', 'parent.id')
+        ->get();
+
+        // return $do;
+        $fname = 'Semi_Parts.csv';
+
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename=$fname");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        
+        $fp = fopen("php://output", "w");
+        
+        $headers = 'id,children_part_no,parent_part_no'."\n";
+
+        fwrite($fp,$headers);
+
+        foreach ($do as $key => $value) {
+            # code...
+            $row = [
+                $value->id,
+                $value->children_part_no,
+                $value->parent_part_no,
+                
+            ];
+            
+            fputcsv($fp, $row);
+        }
+
+        fclose($fp);
     }
 }
