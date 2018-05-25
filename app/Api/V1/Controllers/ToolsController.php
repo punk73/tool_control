@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Dingo\Api\Routing\Helpers;
 use App\Tool;
+use DB;
 use JWTAuth;
 
 
@@ -210,6 +211,59 @@ class ToolsController extends Controller
                 "message" => $message,
             ]
         ];
+    }
+
+    public function download(){
+        $do = DB::table('tools');
+
+        $do = $do->select([
+            'tools.id',
+            'no',
+            'tools.name',
+            'no_of_tooling',
+            'start_value',
+            'guarantee_shoot',
+            'delivery_date',
+            'start_value_date',
+            'suppliers.name as supplier_name',
+        ])->where('deleted_at', null)
+        ->join('suppliers', 'tools.supplier_id', '=', 'suppliers.id')
+        ->get();
+
+        // return $do;
+
+        $fname = 'Tools.csv';
+
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename=$fname");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        
+        $fp = fopen("php://output", "w");
+        
+        $headers = 'id,no,name,no_of_tooling,start_value,guarantee_shoot,delivery_date,start_value_date,supplier_name'."\n";
+
+        fwrite($fp,$headers);
+
+        foreach ($do as $key => $value) {
+            # code...
+            $row = [
+                $value->id,
+                $value->no,
+                $value->name,
+                $value->no_of_tooling,
+                $value->start_value,
+                $value->guarantee_shoot,
+                $value->delivery_date, 
+                $value->start_value_date, 
+                $value->supplier_name, 
+                 
+            ];
+            
+            fputcsv($fp, $row);
+        }
+
+        fclose($fp);
     }
 
 }

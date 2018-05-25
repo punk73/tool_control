@@ -217,7 +217,7 @@ class PartsController extends Controller
         ];
     }
 
-    public function download(Request $request){
+    public function download(){
         $do = DB::table('parts');
 
         $do = $do->select([
