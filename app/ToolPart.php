@@ -26,6 +26,13 @@ class ToolPart extends Model
         'is_independent' => 'integer'
     ];
 
+    protected $fillable =[
+        'tool_id',
+        'part_id',
+        'cavity',
+        'is_independent',
+    ];
+
     public function tool(){
         return $this->hasOne('App\Tool', 'id', 'tool_id'); //model, id of foreign key, id of it's model primarry key
     }

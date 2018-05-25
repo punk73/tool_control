@@ -23,6 +23,15 @@ class Part extends Model
         'total_qty' => 'integer'
     ];
 
+    protected $fillable = [
+        'no',
+        'name',
+        'supplier_id',
+        'model',
+        'first_value',
+        'date_of_first_value',
+    ];
+
     public function supplier(){
     	return $this->belongsTo('App\Supplier');
     }
