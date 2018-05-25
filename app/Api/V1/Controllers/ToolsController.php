@@ -8,6 +8,9 @@ use Dingo\Api\Routing\Helpers;
 use App\Tool;
 use DB;
 use JWTAuth;
+use App\Api\V1\Controllers\CsvController;
+use App\Supplier;
+
 
 
 class ToolsController extends Controller
@@ -264,6 +267,87 @@ class ToolsController extends Controller
         }
 
         fclose($fp);
+    }
+
+    public function upload(Request $request){
+        //get the
+        if ($request->hasFile('file')) {
+
+            # kalau bukan csv, return false;
+            if ($request->file('file')->getClientOriginalExtension() != 'csv' ) {
+                return [
+                    'success' => false,
+                    'message' => 'you need to upload csv file!',
+                    'data' => $request->file('file')->getClientOriginalExtension()
+                ];
+            }
+
+            $file = $request->file('file');
+            $name = time() . '-' . $file->getClientOriginalName();
+            $path = storage_path('tools');
+            
+            $file->move($path, $name); //pindah ke file server;
+            
+            // return [$file, $path, $name ];
+            $fullname = $path .'\\'. $name ;
+            $csv = new CsvController();
+            $importedCsv = $csv->csvToArray($fullname);
+            // return [$fullname, $importedCsv];
+            $records = [];
+            if ($importedCsv) { //kalau something wrong ini bakal bernilai false
+                for ($i = 0; $i < count($importedCsv); $i++)
+                {
+                    // first parameter is data to check, second is data to input
+                    $no =  rtrim( $importedCsv[$i]['no']); //ini di trim kanan
+                    
+                    if ($no == '') {
+                        continue;
+                    }
+
+                    $name =  $importedCsv[$i]['name'];
+                    $supplier = Supplier::select('id')->where('name', 'like', $importedCsv[$i]['supplier_name'] .'%' )->first();
+                    if(is_null($supplier)){ //supplier tidak ditemukan;
+                        continue;
+                    }
+
+                    $supplier_id = (integer) $supplier->id;
+                    
+                    $no_of_tooling = $importedCsv[$i]['no_of_tooling'];
+                    $start_value = $importedCsv[$i]['start_value'];
+                    $start_value_date = $importedCsv[$i]['start_value_date'];
+                    $guarantee_shoot = $importedCsv[$i]['guarantee_shoot'];
+                    $delivery_date = $importedCsv[$i]['delivery_date'];
+                    
+
+                    $record = Tool::updateOrCreate([
+                        ['no', 'like', $no . '%' ],
+                    ], [
+                        'no' => $no,
+                        'name' => $name,
+                        'supplier_id' => $supplier_id,
+                        'no_of_tooling' => $no_of_tooling,
+                        'start_value' => $start_value,
+                        'start_value_date' => $start_value_date,
+                        'guarantee_shoot' => $guarantee_shoot,
+                        'delivery_date' => $delivery_date,
+
+                    ]);
+                    $records[]=$record;
+                    /*kalau ada update, kalau ga ada, ngesave*/
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Good!!',
+                'data' => $records,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'no file found'
+        ];
     }
 
 }

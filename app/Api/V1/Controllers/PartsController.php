@@ -9,6 +9,7 @@ use Dingo\Api\Routing\Helpers;
 use App\Part;
 use App\Pck31;
 use App\Supplier;
+use App\Api\V1\Controllers\CsvController;
 use DB;
 
 
@@ -262,5 +263,76 @@ class PartsController extends Controller
         }
 
         fclose($fp);
+    }
+
+    public function upload(Request $request){
+        //get the
+        if ($request->hasFile('file')) {
+
+            # kalau bukan csv, return false;
+            if ($request->file('file')->getClientOriginalExtension() != 'csv' ) {
+                return [
+                    'success' => false,
+                    'message' => 'you need to upload csv file!',
+                    'data' => $request->file('file')->getClientOriginalExtension()
+                ];
+            }
+
+            $file = $request->file('file');
+            $name = time() . '-' . $file->getClientOriginalName();
+            $path = storage_path('parts');
+            
+            $file->move($path, $name); //pindah ke file server;
+            
+            // return [$file, $path, $name ];
+            $fullname = $path .'\\'. $name ;
+            $csv = new CsvController();
+            $importedCsv = $csv->csvToArray($fullname);
+            // return [$fullname, $importedCsv];
+            $records = [];
+            if ($importedCsv) { //kalau something wrong ini bakal bernilai false
+                for ($i = 0; $i < count($importedCsv); $i++)
+                {
+                    // first parameter is data to check, second is data to input
+                    $no =  rtrim( $importedCsv[$i]['no']); //ini di trim kanan
+                    $name =  $importedCsv[$i]['name'];
+                    $supplier = Supplier::select('id')->where('name', 'like', $importedCsv[$i]['supplier_name'] .'%' )->first();
+                    
+                    if(is_null($supplier)){ //supplier tidak ditemukan;
+                        continue;
+                    }
+
+                    $supplier_id = (integer) $supplier->id;
+                    // return $supplier_id;
+                    $model = $importedCsv[$i]['model'];
+                    $first_value = $importedCsv[$i]['first_value'];
+                    $date_of_first_value = $importedCsv[$i]['date_of_first_value'];
+
+                    $record = Part::updateOrCreate([
+                        ['no', 'like', $no . '%' ],
+                    ], [
+                        'no' => $no,
+                        'name' => $name,
+                        'supplier_id' => $supplier_id,
+                        'model' => $model,
+                        'first_value' => $first_value,
+                        'date_of_first_value' => $date_of_first_value,
+                    ]);
+                    $records[]=$record;
+                    /*kalau ada update, kalau ga ada, ngesave*/
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Good!!',
+                'data' => $records,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'no file found'
+        ];
     }
 }

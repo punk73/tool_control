@@ -8,6 +8,8 @@ use App\ToolPart;
 use App\Tool;
 use App\Part;
 use DB;
+use App\Api\V1\Controllers\CsvController;
+use App\Supplier;
 
 class ToolPartController extends Controller
 {
@@ -201,10 +203,12 @@ class ToolPartController extends Controller
             'part.no as part_no',
             'cavity',
             'is_independent',
+            'supplier.name as supplier_name'
         ])->where('part.deleted_at', null)
         ->where('tool.deleted_at', null)
         ->join('parts as part', 'tool_part.part_id', '=', 'part.id')
         ->join('tools as tool', 'tool_part.tool_id', '=', 'tool.id')
+        ->join('suppliers as supplier', 'tool.supplier_id', '=', 'supplier.id')
         ->get();
 
         // return $do;
@@ -218,7 +222,7 @@ class ToolPartController extends Controller
         
         $fp = fopen("php://output", "w");
         
-        $headers = 'id,tool_no,part_no,cavity,is_suffix_number'."\n";
+        $headers = 'id,tool_no,part_no,cavity,is_suffix_number,supplier_name'."\n";
 
         fwrite($fp,$headers);
 
@@ -230,12 +234,122 @@ class ToolPartController extends Controller
                 $value->part_no,
                 $value->cavity,
                 $value->is_independent,
+                $value->supplier_name,
+
             ];
             
             fputcsv($fp, $row);
         }
 
         fclose($fp);
+    }
+
+    public function upload(Request $request){
+        //get the
+        if ($request->hasFile('file')) {
+
+            # kalau bukan csv, return false;
+            if ($request->file('file')->getClientOriginalExtension() != 'csv' ) {
+                return [
+                    'success' => false,
+                    'message' => 'you need to upload csv file!',
+                    'data' => $request->file('file')->getClientOriginalExtension()
+                ];
+            }
+
+            $file = $request->file('file');
+            $name = time() . '-' . $file->getClientOriginalName();
+            $path = storage_path('tools');
+            
+            $file->move($path, $name); //pindah ke file server;
+            
+            // return [$file, $path, $name ];
+            $fullname = $path .'\\'. $name ;
+            $csv = new CsvController();
+            $importedCsv = $csv->csvToArray($fullname);
+            // return [$fullname, $importedCsv];
+            $records = [];
+            $errorFound = 0;
+            if ($importedCsv) { //kalau something wrong ini bakal bernilai false
+                for ($i = 0; $i < count($importedCsv); $i++)
+                {
+
+                    $part = Part::where('no', 'like', $importedCsv[$i]['part_no'] . '%' )
+                    ->with(['supplier:id,name,code'])
+                    ->first();                     
+                    if (is_null($part)) {
+                        // kalau part tidak ditemukan masuk kesini
+                        $record[] = [
+                            'part_no' => $importedCsv[$i]['part_no'],
+                            'message' => 'part number not found'
+                        ];
+                        $errorFound++;
+                        continue;
+                    }
+                    $part_id = $part->id; //set part id to input
+
+                    $tool = Tool::where('no', 'like', $importedCsv[$i]['tool_no'].'%' )
+                    ->with(['supplier:id,name,code'])
+                    ->first();
+                    
+                    if (is_null($part)) {
+                        // kalau part tidak ditemukan masuk kesini
+                        $record[] = [
+                            'tool_no' => $importedCsv[$i]['tool_no'],
+                            'message' => 'tool number not found'
+                        ];
+                        $errorFound++;
+                        continue;
+                    }
+                    $tool_id = $tool->id; //set tool id to input
+
+
+                    // cek apakah part_id ada di supplier yg di pass
+                    //cek apakah tool_id & part_id ada di supplier yg di pass 
+                    if ( $part->supplier->id !== $tool->supplier->id ) {
+                        $record = [
+                            'part' => $part,
+                            'tool' => $tool,
+                            
+                            'message' => 'part & tool is from two difference supplier!'
+                        ];
+                        $records[]=$record;
+                        $errorFound++;
+                        continue;                  
+                    }
+
+                    $cavity = $importedCsv[$i]['cavity'];
+                    /*user input is suffix number, di db is independent*/
+                    $is_independent = $importedCsv[$i]['is_suffix_number']; 
+
+                    $record = ToolPart::updateOrCreate([
+                        'part_id' => $part_id,
+                        'tool_id' => $tool_id,
+                    ], [
+                        'part_id' => $part_id,
+                        'tool_id' => $tool_id,
+                        'cavity' => $cavity,
+                        'is_independent' => $is_independent,
+
+                    ]);
+
+                    $records[]=$record;
+                    /*kalau ada update, kalau ga ada, ngesave*/
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Good!!',
+                'error_found' => $errorFound,
+                'data' => $records,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'no file found'
+        ];
     }
 
 }

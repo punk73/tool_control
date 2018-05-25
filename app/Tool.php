@@ -24,6 +24,17 @@ class Tool extends Model
         'start_value' => 'integer', 
         'guarantee_shoot' => 'integer'
     ];
+
+    protected $fillable =[
+        'no',
+        'name',
+        'no_of_tooling',
+        'start_value',
+        'guarantee_shoot',
+        'delivery_date',
+        'start_value_date',
+        'supplier_id',
+    ];
     
     public function supplier(){
         return $this->belongsTo('App\Supplier');

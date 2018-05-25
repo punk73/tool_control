@@ -51,7 +51,7 @@ $api->version('v1', function (Router $api) {
             $api->get('/', 'App\\Api\\V1\\Controllers\\PartsController@index' );
             $api->get('/all', 'App\\Api\\V1\\Controllers\\PartsController@all' );
             $api->get('/download', 'App\\Api\\V1\\Controllers\\PartsController@download' );
-
+            $api->post('/upload', 'App\\Api\\V1\\Controllers\\PartsController@upload' );
             $api->post('/', 'App\\Api\\V1\\Controllers\\PartsController@store' );
             $api->put('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@update' );
             $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\PartsController@delete' );
@@ -62,6 +62,7 @@ $api->version('v1', function (Router $api) {
             $api->get('/', 'App\\Api\\V1\\Controllers\\ToolsController@index' );
             $api->get('/all', 'App\\Api\\V1\\Controllers\\ToolsController@all' );
             $api->get('/download', 'App\\Api\\V1\\Controllers\\ToolsController@download' );
+            $api->post('/upload', 'App\\Api\\V1\\Controllers\\ToolsController@upload' );
 
             $api->post('/', 'App\\Api\\V1\\Controllers\\ToolsController@store' );
             $api->put('/{id}', 'App\\Api\\V1\\Controllers\\ToolsController@update' );
@@ -80,6 +81,8 @@ $api->version('v1', function (Router $api) {
         $api->group(['prefix' => 'toolparts'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\ToolPartController@index' );
             $api->get('/download', 'App\\Api\\V1\\Controllers\\ToolPartController@download' );
+            $api->post('/upload', 'App\\Api\\V1\\Controllers\\ToolPartController@upload' );
+            
             $api->post('/', 'App\\Api\\V1\\Controllers\\ToolPartController@store' );
             $api->delete('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@delete' );
             $api->put('/{id}', 'App\\Api\\V1\\Controllers\\ToolPartController@update' );
@@ -112,6 +115,7 @@ $api->version('v1', function (Router $api) {
         $api->group(['prefix' => 'part_relations'], function(Router $api){
             $api->get('/', 'App\\Api\\V1\\Controllers\\PartRelationController@index' );
             $api->get('/download', 'App\\Api\\V1\\Controllers\\PartRelationController@download' );
+            $api->post('/upload', 'App\\Api\\V1\\Controllers\\PartRelationController@upload' );
             
             $api->post('/', 'App\\Api\\V1\\Controllers\\PartRelationController@store' );
             $api->put('/{id}', 'App\\Api\\V1\\Controllers\\PartRelationController@update' );
