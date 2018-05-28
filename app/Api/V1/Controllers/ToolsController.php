@@ -40,8 +40,11 @@ class ToolsController extends Controller
     	}
 
         if (isset($request->no) && $request->no != "" ) {
-            $tool = $tool->where('no', '=', $request->no );
-            
+            $tool = $tool->where('no', 'like', $request->no . '%' );
+        }
+
+        if (isset($request->name) && $request->name != "" ) {
+            $tool = $tool->where('name', 'like', '%'. $request->name .'%');
         }
 
     	$tool = $tool->orderBy('id', 'desc')->paginate($limit);
