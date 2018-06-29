@@ -4,7 +4,7 @@ namespace App\Api\V1\Controllers;
 
 use Config;
 use App\User;
-use JWTAuth;
+use Illuminate\Support\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;

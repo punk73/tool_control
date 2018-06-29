@@ -6,6 +6,8 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\Console\Commands\FillDetails;
+use App\Console\Commands\ImportParts;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -16,7 +18,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
-        FillDetails::class
+        FillDetails::class,
+        ImportParts::class,
     ];
 
     /**

@@ -678,76 +678,31 @@ class DataController extends Controller
 	}
 
 	public function test(Request $request){
-		$dataController = $this;
+		$trans_date = ($request->trans_date) ? $request->trans_date : date('Y-m-d');
 
-		if (isset($request->trans_date) && $request->trans_date != '') {
-			$trans_date = $request->trans_date;
-		}else{
-			$trans_date = date('Y-m-d'); //secara default refer ke hari ini;
-		}
-
+		// return $trans_date;
 		
-		$limit = (isset($request->limit)) ? $request->limit : 15 ;
 
-		$tools = Tool::has('parts')
-		// ->where('id', 6 )
-		->with([
-			// 'parts', ///sudah dihandle partWithHighestTotalDelivery
-			
-			'parts.details' => function ($part_detail) use ($trans_date) {
-				// $detail->select(DB::raw('select max ')) //select max total delivery
-				$part_detail->select([
-					'id',
-					'part_id',
-					'total_delivery',
-					'total_qty',
-					'trans_date',
-				]);//->orderBy('total_delivery', 'desc'); //should always return one result based on trans_date
+		$toolparts = ToolPart::select([
+			'tool_part.*',
+			'parts.no as part_no',
+			'parts.name as part_name',
+			'tools.no as tool_no',
+			'tools.name as tool_name',
+			'suppliers.name as supplier_name',
+			'part_details.total_delivery as total_delivery',
+		])
+		->join('parts', 'tool_part.part_id', '=', 'parts.id')
+		->join('tools', 'tool_part.tool_id', '=', 'tools.id')
+		->join('suppliers', 'tools.supplier_id', '=', 'suppliers.id')
+		->join('part_details', 'parts.id','=','part_details.part_id')
+		->where('part_details.trans_date', '=', $trans_date )
+		->get();
 
-				if (isset($trans_date) && $trans_date != null ) {
-					$part_detail = $part_detail->where('trans_date', '=', $trans_date );
-				}
-
-				// $max = $part_detail->max('total_delivery');
-				// $part_detail = $part_detail->where('total_delivery', $max );
-
-
-			}, ///sudah dihandle partWithHighestTotalDelivery
-			
-			
-			'detail' => function ($detail) use ($trans_date){
-				$detail->select([
-					'id',
-					'tool_id',
-					'total_shoot',
-					'guarantee_after_forecast',
-					'balance_shoot',
-					'trans_date',
-				]);
-
-				if (isset($trans_date)) {
-					$detail = $detail->where('trans_date', '=', $trans_date );
-				}
-			},// -->get highest total shoot in tool_details;
-
-			'detail.machine' => function($machine) use ($trans_date){
-				$machine->select([
-					//'id', //id harus selalu ikut
-					'tool_id', //tool id harus selalu ikut, karena jadi foreign key
-					'counter',
-					'tanggal',
-					'note',
-				])
-				->where('tanggal', '<=', $trans_date )
-				->orderBy('id','desc'); //jika disatu trans_date ada dua, maka muncul yg paling baru diinput.
-				// ->orderBy('tanggal', 'desc')
-			},
-
-			'supplier' // -->get supplier
-		]);
-
-		$tools = $tools->get();
-		return $tools;
+		return [
+			'count' => count($toolparts),
+			'data'  =>	$toolparts
+		];
 
 	}
 
