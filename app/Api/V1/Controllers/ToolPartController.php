@@ -292,7 +292,7 @@ class ToolPartController extends Controller
                     ->with(['supplier:id,name,code'])
                     ->first();
                     
-                    if (is_null($part)) {
+                    if (is_null($tool)) {
                         // kalau part tidak ditemukan masuk kesini
                         $record[] = [
                             'tool_no' => $importedCsv[$i]['tool_no'],

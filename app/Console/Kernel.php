@@ -7,6 +7,8 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\Console\Commands\FillDetails;
 use App\Console\Commands\ImportParts;
+use App\Console\Commands\ImportTools;
+use App\Console\Commands\ImportCavity;
 
 
 class Kernel extends ConsoleKernel
@@ -20,6 +22,8 @@ class Kernel extends ConsoleKernel
         //
         FillDetails::class,
         ImportParts::class,
+        ImportTools::class,
+        ImportCavity::class,
     ];
 
     /**

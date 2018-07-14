@@ -5,23 +5,23 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Api\V1\Controllers\CsvController;
 use App\Supplier;
-use App\Part;
+use App\Tool;
 
-class ImportParts extends Command
+class ImportTools extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:parts {filename=Parts.csv}';
+    protected $signature = 'import:tools {filename=Tools.csv}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'it will import part from csv file that store in web storage';
+    protected $description = 'it will import tools from csv file that store in web storage';
 
     // protected $path = ;
     // protected $filename = 'Parts.csv';
@@ -41,8 +41,7 @@ class ImportParts extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {   
+    public function handle(){   
         
 
         //import file parts;
@@ -53,9 +52,15 @@ class ImportParts extends Command
             $this->error('File '. $this->argument('filename') .' not Found!');
             return;            
         }
-        // echo $fullname;
-        // return;
 
+        $this->doImport($fullname);
+
+        // if everything goes right!
+        $this->info($this->argument('filename').' is Imported!!');
+
+    }
+
+    public function doImport($fullname){
         $csv = new CsvController();
         $importedCsv = $csv->csvToArray($fullname);
         $bar = $this->output->createProgressBar(count($importedCsv));
@@ -65,40 +70,49 @@ class ImportParts extends Command
             {   
                 // loading nambah;
                 $bar->advance();
+                
                 // first parameter is data to check, second is data to input
                 $no =  rtrim( $importedCsv[$i]['no']); //ini di trim kanan
-                $name =  $importedCsv[$i]['name'];
-                $supplier = Supplier::select('id')->where('code', 'like', $importedCsv[$i]['supplier_code'] .'%' )->first();
                 
+                if ($no == '') {
+                    continue;
+                }
+
+                $name =  $importedCsv[$i]['name'];
+                $supplier = Supplier::select('id')->where('name', 'like', trim($importedCsv[$i]['supplier_name']) .'%' )->first();
                 if(is_null($supplier)){ //supplier tidak ditemukan;
+                    $this->error( $importedCsv[$i]['supplier_name'] . ' supplier name not found');
                     continue;
                 }
 
                 $supplier_id = (integer) $supplier->id;
-                // return $supplier_id;
-                $model = $importedCsv[$i]['model'];
-                $first_value = $importedCsv[$i]['first_value'];
-                $date_of_first_value = $importedCsv[$i]['date_of_first_value'];
+                
+                $no_of_tooling = $importedCsv[$i]['no_of_tooling'];
+                $start_value = $importedCsv[$i]['start_value'];
+                $start_value_date = $importedCsv[$i]['start_value_date'];
+                $guarantee_shoot = $importedCsv[$i]['guarantee_shoot'];
+                $delivery_date = $importedCsv[$i]['delivery_date'];
+                
 
-                $record = Part::updateOrCreate([
+                $record = Tool::updateOrCreate([
                     ['no', 'like', $no . '%' ],
                 ], [
                     'no' => $no,
                     'name' => $name,
                     'supplier_id' => $supplier_id,
-                    'model' => $model,
-                    'first_value' => $first_value,
-                    'date_of_first_value' => $date_of_first_value,
+                    'no_of_tooling' => $no_of_tooling,
+                    'start_value' => $start_value,
+                    'start_value_date' => $start_value_date,
+                    'guarantee_shoot' => $guarantee_shoot,
+                    'delivery_date' => $delivery_date,
+
                 ]);
+
                 $records[]=$record;
                 /*kalau ada update, kalau ga ada, ngesave*/
             }
         }
 
         $bar->finish();
-
-        // if everything goes right!
-        $this->info($this->argument('filename').' is Imported!!');
-
     }
 }
