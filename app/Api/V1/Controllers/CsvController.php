@@ -21,15 +21,10 @@ class CsvController extends Controller
 	    {
 	        while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
 	        {
-	            if (!$header){
-	            	foreach ($row as $key => $value) {
-	            		$row[$key] = implode('_', explode(' ', strtolower($value) ) );
-	            	}
+	            if (!$header)
 	                $header = $row;
-	            }
-	            else{
+	            else
 	                $data[] = array_combine($header, $row);
-	            }
 	        }
 	        fclose($handle);
 	    }

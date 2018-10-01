@@ -227,6 +227,7 @@ class PartsController extends Controller
             'parts.name',
             // 'supplier_id',
             'suppliers.name as supplier_name',
+            'suppliers.code as supplier_code',
             'model',
             'first_value',
             'date_of_first_value',

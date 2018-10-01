@@ -203,7 +203,10 @@ class ToolPartController extends Controller
             'part.no as part_no',
             'cavity',
             'is_independent',
-            'supplier.name as supplier_name'
+            'supplier.name as supplier_name',
+            'supplier.code as supplier_code',
+
+
         ])->where('part.deleted_at', null)
         ->where('tool.deleted_at', null)
         ->join('parts as part', 'tool_part.part_id', '=', 'part.id')
@@ -221,11 +224,19 @@ class ToolPartController extends Controller
         header("Expires: 0");
         
         $fp = fopen("php://output", "w");
-        
-        $headers = 'id,tool_no,part_no,cavity,is_suffix_number,supplier_name'."\n";
+        $headers=[
+            'id',
+            'tool_no',
+            'part_no',
+            'cavity',
+            'is_suffix_number',
+            'supplier_name',
+            'supplier_code',
+        ];
+        $headers = implode(',', $headers );
+        $headers = substr($headers, 0, (count($headers)-1) ) . PHP_EOL;
 
         fwrite($fp,$headers);
-
         foreach ($do as $key => $value) {
             # code...
             $row = [
@@ -235,7 +246,7 @@ class ToolPartController extends Controller
                 $value->cavity,
                 $value->is_independent,
                 $value->supplier_name,
-
+                $value->supplier_code
             ];
             
             fputcsv($fp, $row);
