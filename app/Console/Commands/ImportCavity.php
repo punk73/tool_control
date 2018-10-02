@@ -79,7 +79,7 @@ class ImportCavity extends Command
                 $part = Part::where('no', 'like', $importedCsv[$i]['part_no'] . '%' )
                 ->with(['supplier:id,name,code'])
                 ->first();                     
-                if (is_null( $part)) {
+                if ( !$part ) {
                     // kalau part tidak ditemukan masuk kesini
                     $record[] = [
                         'part_no' => $importedCsv[$i]['part_no'],
@@ -91,33 +91,54 @@ class ImportCavity extends Command
                 }
                 $part_id = $part->id; //set part id to input
 
-                // cek if this tools is exists
-                if(! Tool::where('no', 'like', $importedCsv[$i]['tool_no'].'%' )
+                $tool = Tool::where('no', 'like', $importedCsv[$i]['tool_no'].'%' )
                 ->with(['supplier:id,name,code'])
-                ->exists()){
-                    $record[] = [
+                ->first();
+
+                if( !$tool ){
+                    /*$record[] = [
                         'tool_no' => $importedCsv[$i]['tool_no'],
                         'message' => 'tool number not found'
-                    ];
+                    ];*/
                     $errorFound++;
                     $this->error( $importedCsv[$i]['tool_no'] . ' not found ');
                     continue;
                 }
 
-                $tool = Tool::where('no', 'like', $importedCsv[$i]['tool_no'].'%' )
-                ->with(['supplier:id,name,code'])
-                ->first();
-
                 $tool_id = $tool->id; //set tool id to input
-
 
                 // cek apakah part_id ada di supplier yg di pass
                 //cek apakah tool_id & part_id ada di supplier yg di pass 
+                
+
+                if(!isset($part->supplier)){
+                    $record = [
+                        'part' => $part,
+                        'tool' => $tool,
+                        'message' => 'part & tool is from two difference supplier!'
+                    ];
+                    $records[]=$record;
+                    $this->error('tool & part is from different supplier');
+                    $errorFound++;
+                    continue;
+                }
+
+                if(!isset($tool->supplier)){
+                    $record = [
+                        'part' => $part,
+                        'tool' => $tool,
+                        'message' => 'part & tool is from two difference supplier!'
+                    ];
+                    $records[]=$record;
+                    $this->error('tool & part is from different supplier');
+                    $errorFound++;
+                    continue;
+                }
+
                 if ( $part->supplier->id !== $tool->supplier->id ) {
                     $record = [
                         'part' => $part,
                         'tool' => $tool,
-                        
                         'message' => 'part & tool is from two difference supplier!'
                     ];
                     $records[]=$record;
@@ -130,7 +151,13 @@ class ImportCavity extends Command
                 /*user input is suffix number, di db is independent*/
                 $is_independent = $importedCsv[$i]['is_suffix_number']; 
 
-                
+                $this->info (print_r([
+                    'part_id' => $part_id,
+                    'tool_id' => $tool_id,
+                    'cavity' => $cavity,
+                    'is_independent' => $is_independent,
+                ]));
+
                 $record = ToolPart::updateOrCreate([
                     'part_id' => $part_id,
                     'tool_id' => $tool_id,
@@ -140,13 +167,6 @@ class ImportCavity extends Command
                     'cavity' => $cavity,
                     'is_independent' => $is_independent,
                 ]);
-
-                $this->info (print_r([
-                    'part_id' => $part_id,
-                    'tool_id' => $tool_id,
-                    'cavity' => $cavity,
-                    'is_independent' => $is_independent,
-                ]));
 
                 $records[]=$record;
                 /*kalau ada update, kalau ga ada, ngesave*/
