@@ -370,7 +370,8 @@ class DataController extends Controller
 						$toolDetail->total_shoot = $total_shoot;
 						$toolDetail->trans_date = $trans_date;
 						$toolDetail->balance_shoot = ceil(($tool->guarantee_shoot - $total_shoot_after_forecast ));
-						$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / ($tool->forecast->total / 6 ) ;
+						$totalForecast = ( ($tool->forecast->total / 6 ) == 0 ) ? 1 : ($tool->forecast->total / 6 ) ;
+						$toolDetail->guarantee_after_forecast = ($toolDetail->balance_shoot * (float) $tool->part->pivot->cavity ) / $totalForecast ;
 						$toolDetail->save();
 					}
 					
