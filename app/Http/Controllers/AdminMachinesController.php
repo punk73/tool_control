@@ -5,12 +5,12 @@
 	use DB;
 	use CRUDBooster;
 
-	class AdminParts1Controller extends \crocodicstudio\crudbooster\controllers\CBController {
+	class AdminMachinesController extends \crocodicstudio\crudbooster\controllers\CBController {
 
 	    public function cbInit() {
 
 			# START CONFIGURATION DO NOT REMOVE THIS LINE
-			$this->title_field = "name";
+			$this->title_field = "id";
 			$this->limit = "20";
 			$this->orderby = "id,desc";
 			$this->global_privilege = false;
@@ -25,37 +25,31 @@
 			$this->button_filter = true;
 			$this->button_import = false;
 			$this->button_export = false;
-			$this->table = "parts";
+			$this->table = "machines";
 			# END CONFIGURATION DO NOT REMOVE THIS LINE
 
 			# START COLUMNS DO NOT REMOVE THIS LINE
 			$this->col = [];
-			$this->col[] = ["label"=>"No","name"=>"no"];
-			$this->col[] = ["label"=>"Name","name"=>"name"];
-			$this->col[] = ["label"=>"Supplier Id","name"=>"supplier_id","join"=>"suppliers,id"];
-			$this->col[] = ["label"=>"Model","name"=>"model"];
-			$this->col[] = ["label"=>"First Value","name"=>"first_value"];
-			$this->col[] = ["label"=>"Date Of First Value","name"=>"date_of_first_value"];
+			$this->col[] = ["label"=>"Tool Id","name"=>"tool_id","join"=>"tools,id"];
+			$this->col[] = ["label"=>"Counter","name"=>"counter"];
+			$this->col[] = ["label"=>"Tanggal","name"=>"tanggal"];
+			$this->col[] = ["label"=>"Note","name"=>"note"];
 			# END COLUMNS DO NOT REMOVE THIS LINE
 
 			# START FORM DO NOT REMOVE THIS LINE
 			$this->form = [];
-			$this->form[] = ['label'=>'No','name'=>'no','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
-			$this->form[] = ['label'=>'Name','name'=>'name','type'=>'text','validation'=>'required|string|min:3|max:70','width'=>'col-sm-10','placeholder'=>'You can only enter the letter only'];
-			$this->form[] = ['label'=>'Supplier Id','name'=>'supplier_id','type'=>'select','validation'=>'required|integer|min:0','width'=>'col-sm-10','datatable'=>'suppliers,name'];
-			$this->form[] = ['label'=>'Model','name'=>'model','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
-			$this->form[] = ['label'=>'First Value','name'=>'first_value','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
-			$this->form[] = ['label'=>'Date Of First Value','name'=>'date_of_first_value','type'=>'date','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Tool Id','name'=>'tool_id','type'=>'select','validation'=>'required|integer|min:0','width'=>'col-sm-10','datatable'=>'tools,no'];
+			$this->form[] = ['label'=>'Counter','name'=>'counter','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Tanggal','name'=>'tanggal','type'=>'date','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Note','name'=>'note','type'=>'textarea','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
 			# END FORM DO NOT REMOVE THIS LINE
 
 			# OLD START FORM
 			//$this->form = [];
-			//$this->form[] = ['label'=>'No','name'=>'no','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
-			//$this->form[] = ['label'=>'Name','name'=>'name','type'=>'text','validation'=>'required|string|min:3|max:70','width'=>'col-sm-10','placeholder'=>'You can only enter the letter only'];
-			//$this->form[] = ['label'=>'Supplier Id','name'=>'supplier_id','type'=>'select','validation'=>'required|integer|min:0','width'=>'col-sm-10','datatable'=>'suppliers, name'];
-			//$this->form[] = ['label'=>'Model','name'=>'model','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
-			//$this->form[] = ['label'=>'First Value','name'=>'first_value','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
-			//$this->form[] = ['label'=>'Date Of First Value','name'=>'date_of_first_value','type'=>'date','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
+			//$this->form[] = ['label'=>'Tool Id','name'=>'tool_id','type'=>'select','validation'=>'required|integer|min:0','width'=>'col-sm-10','datatable'=>'tools,no'];
+			//$this->form[] = ['label'=>'Counter','name'=>'counter','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+			//$this->form[] = ['label'=>'Tanggal','name'=>'tanggal','type'=>'date','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
+			//$this->form[] = ['label'=>'Note','name'=>'note','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
 			# OLD END FORM
 
 			/* 
