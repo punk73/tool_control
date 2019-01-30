@@ -170,6 +170,7 @@ return [
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Dingo\Api\Provider\LaravelServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
+        crocodicstudio\crudbooster\CRUDBoosterServiceProvider::class,
 
         /*
          * Application Service Providers...

@@ -88,6 +88,7 @@ return [
             'username' => env('DB_USERNAME', 'sa'),
             'password' => env('DB_PASSWORD', 'password'),
             'prefix' => '',
+            'schema' => env('DB_SCHEMA','dbo'),
 
         ],
 
@@ -100,6 +101,7 @@ return [
             'username' => env('DB_USERNAME2', 'sa'),
             'password' => env('DB_PASSWORD2', 'password'),
             'prefix' => '',
+            'schema' => env('DB_SCHEMA','dbo'),
 
         ],
 
