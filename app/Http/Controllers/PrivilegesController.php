@@ -1,6 +1,9 @@
-<?php namespace crocodicstudio\crudbooster\controllers;
+<?php namespace App\Http\Controllers;
 
 use CRUDBooster;
+use crocodicstudio\crudbooster\controllers\CBController;
+// ini ga bisa karena controller tersebut sudah di alias jd controller yg sekarang.
+use crocodicstudio\crudbooster\controllers\PrivilegesController as Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\PDF;
@@ -8,7 +11,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
-class PrivilegesController extends CBController
+class PrivilegesController extends CBController 
 {
     public function cbInit()
     {
@@ -74,9 +77,10 @@ class PrivilegesController extends CBController
         $this->validation($request);
         $this->input_assignment($request);
 
-        $this->arr[$this->primary_key] = DB::table($this->table)->max($this->primary_key) + 1;
+        // it's primary key. don't need to specify it directly and is causing error on sql server
+        //$this->arr[$this->primary_key] = DB::table($this->table)->max($this->primary_key) + 1;
 
-        // DB::table($this->table)->insert($this->arr);
+        DB::table($this->table)->insert($this->arr);
         $id = $this->arr[$this->primary_key];
 
         //set theme
@@ -86,7 +90,8 @@ class PrivilegesController extends CBController
         if ($priv) {
             foreach ($priv as $id_modul => $data) {
                 $arrs = [];
-                $arrs['id'] = DB::table('cms_privileges_roles')->max('id') + 1;
+                // it's already handled by sql server 
+                //$arrs['id'] = DB::table('cms_privileges_roles')->max('id') + 1;
                 $arrs['is_visible'] = @$data['is_visible'] ?: 0;
                 $arrs['is_create'] = @$data['is_create'] ?: 0;
                 $arrs['is_read'] = @$data['is_read'] ?: 0;

@@ -27,6 +27,12 @@
             "App\\": "app/"
         }
     },
+    
+    "exclude-from-classmap": [
+        "vendor\\crocodicstudio\\crudbooster\\src\\controllers\\PrivilegesController",
+        "vendor\\crocodicstudio\\crudbooster\\src\\controllers\\ModulsController"
+    ],
+
     "autoload-dev": {
         "psr-4": {
             "App\\": "tests/"
