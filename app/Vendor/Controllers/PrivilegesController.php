@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers;
+<?php namespace App\Vendor\Controllers;
 
 use CRUDBooster;
 use crocodicstudio\crudbooster\controllers\CBController;

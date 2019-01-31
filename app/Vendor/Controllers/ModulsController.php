@@ -1,4 +1,4 @@
-<?php namespace crocodicstudio\crudbooster\controllers;
+<?php namespace App\Vendor\Controllers;
 
 use CRUDBooster;
 use Illuminate\Support\Facades\DB;
@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\PDF;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use crocodicstudio\crudbooster\fonts\Fontawesome;
+use crocodicstudio\crudbooster\controllers\CBController;
 
 class ModulsController extends CBController
 {

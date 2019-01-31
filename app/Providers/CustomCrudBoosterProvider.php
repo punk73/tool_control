@@ -27,7 +27,9 @@ class CustomCrudBoosterProvider extends CRUDBoosterServiceProvider
     public function register()
     {
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('crocodicstudio\crudbooster\controllers\PrivilegesController', 'App\Http\Controllers\PrivilegesController');
-        // $this->app->bind(VoyagerBreadController::class, CustomPrivilegesController::class);
+        $loader->alias('crocodicstudio\crudbooster\controllers\PrivilegesController', 'App\Vendor\Controllers\PrivilegesController');
+        $loader->alias('crocodicstudio\crudbooster\controllers\ModulsController', 'App\Vendor\Controllers\ModulsController');
+        $loader->alias('crocodicstudio\crudbooster\helpers\CRUDBooster', 'App\Vendor\Helper\CRUDBooster');
+        
     }
 }
