@@ -1,6 +1,6 @@
 <?php
 
-namespace crocodicstudio\crudbooster\helpers;
+namespace App\Vendor\Helper;
 
 use Cache;
 use DB;

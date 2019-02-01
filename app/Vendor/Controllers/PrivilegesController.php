@@ -2,8 +2,6 @@
 
 use CRUDBooster;
 use crocodicstudio\crudbooster\controllers\CBController;
-// ini ga bisa karena controller tersebut sudah di alias jd controller yg sekarang.
-use crocodicstudio\crudbooster\controllers\PrivilegesController as Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\PDF;

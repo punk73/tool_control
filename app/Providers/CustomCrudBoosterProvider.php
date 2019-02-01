@@ -29,6 +29,7 @@ class CustomCrudBoosterProvider extends CRUDBoosterServiceProvider
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('crocodicstudio\crudbooster\controllers\PrivilegesController', 'App\Vendor\Controllers\PrivilegesController');
         $loader->alias('crocodicstudio\crudbooster\controllers\ModulsController', 'App\Vendor\Controllers\ModulsController');
+        $loader->alias('crocodicstudio\crudbooster\controllers\StatisticBuilderController', 'App\Vendor\Controllers\StatisticBuilderController');
         $loader->alias('crocodicstudio\crudbooster\helpers\CRUDBooster', 'App\Vendor\Helper\CRUDBooster');
         
     }
