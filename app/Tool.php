@@ -81,7 +81,7 @@ class Tool extends Model
         ->whereRaw('transdate = (
             select top 1
             convert(varchar(10), transdate, 101)
-            from svrdbs.edi.dbo.forcast_date
+            from edi.dbo.forcast_date
             where convert(varchar(10), transdate, 112) <= ?
             order by convert(varchar(10), transdate, 112) desc
         )', [$trans_date] ); // ? = parameter yg akan diganti oleh trim($partNo)

@@ -95,7 +95,7 @@ return [
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             // 'server' => env('DB_SERVER2', 'svrdbs\sa'),
-            'host' => env('DB_HOST2', '136.198.117.5'), 
+            'host' => env('DB_HOST2', '136.198.117.80'), 
             'port' => env('DB_PORT2', '1433'),
             'database' => env('DB_DATABASE2', 'forge'),
             'username' => env('DB_USERNAME2', 'sa'),
